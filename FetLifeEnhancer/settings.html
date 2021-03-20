@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>FetLife Enhancer Settings</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        <meta charset="utf-8" />
+        <style type="text/css">
+            body{
+                -webkit-user-select: none;       
+                -moz-user-select: none;
+                -ms-user-select: none;
+                font-size: 14px;
+                width: 100%;
+                margin: auto;
+                background-color: #000;
+                font-family: 'Lucida Grande', 'Lucida Sans Unicode', Arial, Verdana, sans-serif;
+            }
+            a:link{
+                color: #aaa;
+                text-decoration: underline;
+                cursor: pointer !important;
+            }
+            a:hover{
+                color: #cc0000;
+            }
+            a:visited, a:active{
+                color: #aaa;
+            }
+            #LoggedIn{
+                top: 0;
+                float: left;
+                color: #fff;
+                padding: 10px;
+                font-size: 16px;
+            }
+            #FloatyLinks{
+                top: 0px;
+                right: 0px;
+                position: fixed;
+                color: #fff;
+                font-size: 12px;
+            }
+            #Version{
+                bottom: 0px;
+                right: 0px;
+                position: fixed;
+                font-size: 12px;
+                color: #aaa;
+            }
+            #FloatyLinks > div, #Version > div{
+                background-color: #3f3f3f;
+                border-radius: 15px;
+                padding: 10px;
+                margin: 10px;
+            }
+            #FloatyLinks > div > a > img{
+                width: 40px;
+                height: auto;
+            }
+            #Content{
+                margin: auto;
+                width: 60%;
+                padding: 10px 20px 10px 20px;
+            }
+            #Content > :not(hr){
+                position: relative;
+                border: 0;
+                font: inherit;
+                line-height: 18px;
+                text-overflow: ellipsis;
+            }
+            hr{
+                background: rgba(255, 255, 255, 0.295);
+                border: 0;
+                height: 1px;
+                margin: 2px 0;
+            }
+            #Content > div > h1, #FloatyBoxyThingy > div > h1{
+                font-size: 26px;
+                padding: 20px;
+                margin: 10px 1px 10px 1px;
+            }
+            #Content > div:not(.active) > h1{
+                cursor: pointer;
+                border-radius: 15px;
+                background-color: #2c2c2c;
+                color: #aaa;
+            }
+            #Content > div:not(.active) > h1:hover{
+                color: #eee;
+            }
+            #Content > div.active > h1, #FloatyBoxyThingy > div.active > h1{
+                border-radius: 15px 15px 0px 0px;
+                background-color: #cc0000;
+                color: #eee;
+            }
+            div.active ul, div.text{
+                border-radius: 0px 0px 15px 15px;
+                margin: -10px 1px 10px 1px;
+                padding: 10px;
+                list-style: none;
+                background-color: #2c2c2c;
+                color: #aaa;
+                cursor: default;
+            }
+            #Content div:not(.active) ul{
+                display: none;
+            }
+            ul li{
+                display: flex;
+                flex-flow: row wrap;
+            }
+            ul li:first-of-type{
+                padding: 0px 5px 10px 5px;
+            }
+            ul li:not(:first-of-type){
+                padding: 10px 5px 10px 5px;
+            }
+            li.border:not(:last-child){
+                border-bottom: 1px solid rgba(255, 255, 255, 0.295);
+            }
+            .subheader{
+                border-radius: 15px;
+                width: 100%;
+                background-color: #3f3f3f;
+                padding: 10px !important;
+            }
+            .name{
+                flex: 0 0 70%;
+                font-size: 17px;
+                align-items: center;
+                padding: 10px 8px 0px 0px;
+            }
+            .description{
+                font-size: 13px;
+            }
+            .checkbox, .textbox, .buttonbox{
+                display: flex;
+                flex: 1;
+                align-items: center;
+                border-left: 1px dashed rgba(255, 255, 255, 0.295);
+                padding: 0px 0px 0px 15px;
+                font-size: 16px;
+            }
+            .textbox, .buttonbox{
+                padding: 0px 0px 0px 20px !important;
+            }
+            .showme{
+                width: 100%;
+                padding: 10px 0px 0px 0px;
+                display: none;
+                flex-flow: row wrap;
+            }
+            input[type="checkbox"]{
+                width: 20px;
+                height: 20px;
+            }
+            .enable-disable{
+                padding: 0px 0px 0px 10px;
+            }
+            input[type="text"], input[type="password"], textarea{
+                border: 0;
+                color: #eee;
+                background-color: #777;
+            }
+            input[type="checkbox"] + .enable-disable:before{
+                content: "Disabled";
+            }
+            input[type="checkbox"]:checked + .enable-disable:before{
+                content: "Enabled";
+            }
+            .Info{
+                width: 100%;
+            }
+            .Info > .InfoHeader{
+                display: flex;
+                align-items: center;
+                border-radius: 15px;
+                background-color: #3f3f3f;
+                padding: 10px;
+                font-size: 16px;
+            }
+            .Info > .InfoHeader > div:not(:last-child){
+                flex: 0 0 35%;
+                padding: 0px 4px 0px 0px;
+            }
+            .Info > div{
+                display: flex;
+                padding-top: 4px;
+            }
+            .Info > .Location > div:not(:last-child), .Info > .Account > div:not(:last-child){
+                flex: 0 0 35%;
+                padding: 10px 4px 0px 0px;
+            }
+            .Info > .Location > div:last-child, .Info > .Account > div:last-child{
+                display: flex;
+                flex: 1;
+                align-items: center;
+                border-left: 1px dashed rgba(255, 255, 255, 0.295);
+                padding: 10px 0px 0px 20px;
+            }
+            .Info > .Location > div > input[type="text"], .Info > .Account > div > input[type="text"], .Info > .Account > div > input[type="password"]{
+                width: 80%;
+            }
+            .Info > .CSVField > div:nth-child(1){
+                flex: 0 0 10%;
+                display: flex;
+                justify-content: center !important;
+                padding: 10px 4px 0px 0px;
+            }
+            .Info > .CSVField > div:nth-child(2){
+                flex: 0 0 60%;
+                padding: 10px 4px 0px 0px;
+            }
+            .Info > .CSVField > div:nth-child(0){
+                flex: 0 0 35%;
+                padding: 10px 4px 0px 0px;
+            }
+            .Info > .CSVField > div:last-child{
+                display: flex;
+                flex: 1;
+                align-items: center;
+                border-left: 1px dashed rgba(255, 255, 255, 0.295);
+                padding: 10px 0px 0px 20px;
+            }
+            .Info > .CSVField > div > input[type="text"]{
+                width: 80%;
+            }
+            .InfoButton{
+                width: 100%;
+                padding: 10px 0px 0px 0px;
+            }
+            .Tooltip{
+                border-bottom: 1px dotted rgba(255, 255, 255, 0.295);
+            }
+            .TooltipText{
+                display: none;
+                position: absolute;
+                background-color: #3f3f3f;
+                border: 1px solid #cccccc;
+                border-radius: 15px;
+                padding: 10px;
+                margin: 10px;
+                font-size: 12px;
+                color: #aaa;
+                max-width: 250px;
+                opacity: 0;
+                transition: opacity .5s; 
+            }
+            .Tooltip:hover .TooltipText {
+                display: block;
+                z-index: 9999;
+                position: absolute;
+                overflow: hidden;
+                opacity: 1;
+            }
+            #FloatyBoxyThingy{
+                display: none;
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 1;
+                overflow: auto;
+                background-color: rgb(0,0,0);
+                background-color: rgba(0, 0, 0, 0.534);
+            }
+            #FloatyContent{
+                margin: 10% auto;
+                width: 50%;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="LoggedIn"></div>
+        <div id="FloatyLinks">
+            <div id="Donate-Paypal"><a href="https://www.paypal.me/princessbabytaytay" target="_blank" title="Support me by donating!"><img src="images/paypal.png" /></a></div>
+            <div id="FLEGroup"><a href="https://fetlife.com/groups/188715" target="_blank" title="Need help?  Join the FetLife Group!"><img src="images/icons/FL48.png" /></a></div>
+            <div id="NewVersion" style="display: none;"><a href="javascript:void(0);" title="Update Available"><svg xmlns='http://www.w3.org/2000/svg' x='0px' y='0px' width='40' height='40' viewBox='0 0 172 172' style='fill:#000000;'><g transform=''><g fill='none' fill-rule='nonzero' stroke='none' stroke-width='1' stroke-linecap='butt' stroke-linejoin='miter' stroke-miterlimit='10' stroke-dasharray='' stroke-dashoffset='0' font-family='none' font-weight='none' font-size='none' text-anchor='none' style='mix-blend-mode: normal'><path d='M0,172v-172h172v172z' fill='none'></path><g fill='#b5191e'><path d='M86,6.61538c-43.85276,0 -79.38462,35.53185 -79.38462,79.38462c0,43.85276 35.53185,79.38462 79.38462,79.38462c43.85276,0 79.38462,-35.53185 79.38462,-79.38462c0,-43.85276 -35.53185,-79.38462 -79.38462,-79.38462zM86,136.67488c-6.20192,0 -10.4399,-4.78065 -10.4399,-10.98257c0,-6.38281 4.41887,-10.98257 10.4399,-10.98257c6.38281,0 10.4399,4.59976 10.4399,10.98257c0,6.20192 -4.05709,10.98257 -10.4399,10.98257zM90.10878,94.73438c-1.57632,5.40084 -6.56371,5.47837 -8.21755,0c-1.91226,-6.33113 -8.70853,-30.33774 -8.70853,-45.92008c0,-20.56971 25.73798,-20.67308 25.73798,0c0,15.6857 -7.15805,40.3125 -8.8119,45.92008z'></path></g><path d='' fill='none'></path><path d='' fill='none'></path><path d='' fill='none'></path><path d='M86,172c-47.49649,0 -86,-38.50351 -86,-86v0c0,-47.49649 38.50351,-86 86,-86v0c47.49649,0 86,38.50351 86,86v0c0,47.49649 -38.50351,86 -86,86z' fill='none'></path><path d='M86,168.56c-45.59663,0 -82.56,-36.96337 -82.56,-82.56v0c0,-45.59663 36.96337,-82.56 82.56,-82.56v0c45.59663,0 82.56,36.96337 82.56,82.56v0c0,45.59663 -36.96337,82.56 -82.56,82.56z' fill='none'></path><path d='M0,172v-172h172v172z' fill='none'></path><path d='M3.44,168.56v-165.12h165.12v165.12z' fill='none'></path></g></g></svg></a></div>
+        </div>
+        <div id="Version">
+            <div>
+                <a href="javascript:void(0);" id="VersionLink" title="View Changelog"></a>
+                <span id="NewVersionSpan" style="display: none;"> | <a title="Get the newest update!" href="javascript:void(0);" id="NewVersionLink">Update Available</a></span>
+            </div>
+        </div>
+        <div id="Content">
+            <div id="FLE" class="active">
+                <h1>FetLife Enhancer Settings</h1>
+                <ul>
+                    <li class="border">
+                        <div class="name">
+                            Keep all settings tabs expanded
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" name="ExpandTabs" />
+                            <span class="enable-disable"></span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div id="UI">
+                <h1>User Interface Settings</h1>
+                <ul>
+                    <li class="border">
+                        <div class="name">
+                            Keep Navigation Bar on top
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" name="FloatyNav" />
+                            <span class="enable-disable"></span>
+                        </div>
+                    </li>
+                    <li class="border">
+                        <div class="name">
+                            Add a "Friends" link to the navigation bar
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" name="FriendsInNav" />
+                            <span class="enable-disable"></span>
+                        </div>
+                    </li>
+                    <li class="border">
+                        <div class="name">
+                            Make all user mentions clickable links
+                            <div class='description'>Changes all @Username mentions into links that go to that users profile.</div>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" name="MentionLinks" />
+                            <span class="enable-disable"></span>
+                        </div>
+                    </li>
+                    <li class="border">
+                        <div class="name">
+                            Add Format Buttons to textareas
+                            <div class="description">Adds Bold, Italics, List, ect. buttons around FetLife so you no longer have to remember the formatting options.</div>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" name="AddFormatButtons" />
+                            <span class="enable-disable"></span>
+                        </div>
+                    </li>
+                    <li class="border">
+                        <div class="name">
+                            Quick edit "About Me" section of profile
+                            <div class="description">Quickly edit your "About Me" section of your profile by clicking on the "quick edit" link.</div>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" name="QuickEditAboutMe" />
+                            <span class="enable-disable"></span>
+                        </div>
+                    </li>
+                    <li class="border">
+                        <div class="name">
+                            Mass Archive/Delete messages in your inbox
+                            <div class="description">Adds checkboxes to the side of each message in your inbox so you can quickly Archive and Delete messages.  Also adds new Archive and Delete buttons.</div>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" name="ArchiveDeleteInbox" />
+                            <span class="enable-disable"></span>
+                        </div>
+                    </li>
+                    <li class="border">
+                        <div class="name">
+                            Quick Reply Messages
+                            <div class="description">
+                                Compose premade messages to quick reply to people.<br />Adds a section labeled "Quick Replies" when replying to messages (Above the "Delete/Archive" on the right). To add/edit messages and other settings, go to your inbox on FetLife and click on "Quick Reply Settings".
+                            </div>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" name="QuickReply" />
+                            <span class="enable-disable"></span>
+                        </div>
+                    </li>
+                    <li class="border">
+                        <div class="name">Facebook Style Friend Requests
+                            <div class="description">When you click on the Friend Requests icon in the navigation, it makes it load like Facebooks where it puts them all into a floaty box instead of loading a new page.</div>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" name="NotificationBox" />
+                            <span class="enable-disable"></span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div id="Events">
+                <h1>Event Settings</h1>
+                <ul>
+                    <!-- <li class="border">
+                        <div class="name">
+                            Save Locations
+                            <div class="description">Save your favorite Event Locations for quick access via a dropdown menu!  The dropdown menu will show right after the search box on the main events page.</div>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" name="SaveLocations" />
+                            <span class="enable-disable"></span>
+                        </div>
+                    </li> -->
+                    <li class="border toggle">
+                        <div class="name">
+                            Mass Message RSVPs/Maybes on your event
+                            <div class="description">Adds a "Mass Message" tab when viewing the "RSVP" or "Maybe" list of your own event(s). <a id="MMDisclaimer" href="javascript:void(0);" style="color: #cc0000; font-weight: bold;">(View Disclaimer)</a></a></div>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" name="MassMessage" />
+                            <span class="enable-disable"></span>
+                        </div>
+                        <div class="showme">
+                            <div class="name">Exclude these users from Mass Message (Optional)
+                                <div class="description">
+                                    Seperate each username you want to exclude with a comma.  Capitalization doesn't matter.  There is no need to include your own username.
+                                </div>
+                            </div>
+                            <div class="textbox">
+                                <textarea name="ExcludeMassMessage" placeholder="example1, Example_2"></textarea>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="border toggle">
+                        <div class="name">
+                            Create Guest List of RSVPs/Maybes
+                            <div class="description">Adds a "Create Guest List" tab when viewing the "RSVP" or "Maybe" list of your own event(s).  When clicked, you can download and print a premade list/spreadsheet of each user whom is "RSVP" or "Maybe".</div>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" name="ExportToCSV" />
+                            <span class="enable-disable"></span>
+                        </div>
+                        <div class="showme">
+                            <div class="Info" id="CSVFields">
+                                <div class="InfoHeader">
+                                    <div>Enabled</div>
+                                    <div>Additional Fields
+                                        <span class="Tooltip" data-tooltip="To find the Location URL, go to 'Places' and choose which location you want to see the events for. Once you have chosen it, copy and paste the URL of said location into the 'Location URL' box.">(?)
+                                            <span class="TooltipText">
+                                                Create your own fields for the spreadsheet, such as if a user paid, or if they have arrived.
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div><!--unicorns and rainbows!--></div>
+                                </div>
+                            </div>
+                            <div class="InfoButton" id="AddCSVField">
+                                <input type="button" name="AddCSVField" value="Add Field" />
+                            </div>
+                        </div>
+                    </li>
+                    <li class="border">
+                        <div class="name">
+                            Add event to Google Calendar
+                            <div class="description">Changes the time of the event to a clickable link that when pressed, will open a new page to add the event to your google calendar.</div>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" name="AddToGoogleCalendar" />
+                            <span class="enable-disable"></span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div id="Gallery">
+                <h1>Gallery Settings</h1>
+                <ul>
+                    <li class="border">
+                            <div class="name">
+                                Upload Multiple Pictures
+                                <div class="description">Allows you to upload multiple pictures with ease!  When you are on the upload picture page, just click the "Add More Pictures" button.</div>
+                            </div>
+                            <div class="checkbox">
+                                <input type="checkbox" name="MultiImageUpload" />
+                                <span class="enable-disable"></span>
+                            </div>
+                        </li>
+                    <li class="border">
+                        <div class="name">
+                            Bulk Delete Pictures
+                            <div class="description">Quickly delete any of your picures.  When you are viewing all your pictures, click on the checkbox labeled "Bulk Delete" then choose which pictures to delete by clicking on them.</div>
+                        </div>    
+                        <div class="checkbox">
+                            <input type="checkbox" name="BulkDeletePhotos" />
+                            <span class="enable-disable"></span>
+                        </div>
+                    </li>
+                    <li class="border">
+                        <div class="name">
+                            Right-Click to save your pictures
+                            <div class="description">When viewing your pictures (and only yours), you will be able to save your pictures by right-clicking and choosing "Save As".</div>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" name="SaveYourPics" />
+                            <span class="enable-disable"></span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div id="Misc">
+                <h1>Miscellaneous</h1>
+                <ul>
+                    <li class="border">
+                        <div class="name">
+                            Pretty Textareas
+                            <div class="description">Changes all the white textareas/input boxes to match the rest of FetLife.</div>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" name="PrettyTextareas" />
+                            <span class="enable-disable"></span>
+                        </div>
+                    </li>
+                    <li class="border">
+                        <div class="name">
+                            Mass Message Friends
+                            <div class="description">Adds a "Mass Message" tab when viewing your friends list. <a id="MMFDisclaimer" href="javascript:void(0);" style="color: #cc0000; font-weight: bold;">(View Disclaimer)</a></div>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" name="MassMessageFriends" />
+                            <span class="enable-disable"></span>
+                        </div>
+                    </li>
+                    <li class="border">
+                        <div class="name">
+                            Search your Friend List
+                            <div class="description">Adds a input field when viewing your friend list so you can quickly search through your friends.  Helpful if you are using Mass Message Friends!</div>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" name="SearchFriends" />
+                            <span class="enable-disable"></span>
+                        </div>
+                    </li>
+                    <li class="border">
+                        <div class="name">Restore default settings</div>
+                        <div class="buttonbox">
+                            <input type="button" value="Reset!" name="RestoreSettings" />
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div id="FloatyBoxyThingy">
+            <div id="FloatyContent" class="active">
+                <h1>Changelog</h1>
+                <ul>
+                    <li class="border">
+                        Testing :D<br />Test
+                    </li>
+                    <li class="border">
+                        Testing :D
+                    </li>
+                    <li class="border">
+                        Testing :D
+                    </li>    
+                </ul>
+            </div>
+        </div>
+    </body>
+    <script type="application/javascript" src="settings.js"></script>
+    <script type="application/javascript" src="Changelog.js"></script>
+    </script>
+</html>
