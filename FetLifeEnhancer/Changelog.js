@@ -1,10 +1,14 @@
 let Changes = new Array();
 Changes["2.4.4"] = [
-    "Fixed a bug with \"Mass Message Events\" that caused it not to work."
+    // Mass Archive/Delete Messages AJAX doesn't work.
+    // Update Locations Script (Might not be worth it, might not work as wanted)
+    // Update Multiple Image Upload
+    "Fixed a bug with \"Mass Message Events\" that caused it not to work.",
+    "Fixed a bug with \"Quick Replies\" that caused it not to work.",
+    "Fixed a bug with \"Add To Google Calendar\" that caused it not to work.",
+    "Heavility updated code to match TamperMonkey script."
 ];
 Changes["2.4.3"] = [
-    //Update Locations Script (Might not be worth it, might not work as wanted)
-    //Update Multiple Image Upload
     "Updated \"Search Friends\" to work around Fetlifes new Search Friends feature.",
     "Fixed a bug with \"Mass Message Friends\" that caused it to create a tab on the Groups page.",
     "Fixed a bug with \"Add Format Buttons\" that caused it not to work on some areas of FetLife.",

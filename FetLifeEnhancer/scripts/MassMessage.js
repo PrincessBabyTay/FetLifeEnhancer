@@ -264,7 +264,7 @@ function MassMessageFriends(boobs, SearchBreakUnfriendFix){
 			}else{
 				document.getElementById("MassFriendsNumber").innerHTML = "";
 				document.getElementById("MassFriendsNumber").removeAttribute("class");
-				chrome.storage.sync.remove("MassMessageFriendsList");
+				DeleteSync("MassMessageFriendsList");
 				return;
 			};
 		}else if(this.getAttribute("mass-message") === "MessagePage"){
@@ -290,12 +290,10 @@ function MassMessageFriends(boobs, SearchBreakUnfriendFix){
 		SaveList();
 	};
 	function SaveList(){
-		chrome.storage.sync.set({
-			MassMessageFriendsList: MassFriends
-		});
+		SetSync("MassMessageFriendsList", MassFriends);
 	};
 	function RemoveList(){
-		chrome.storage.sync.remove("MassMessageFriendsList");
+		DeleteSync("MassMessageFriendsList");
 		window.location.reload(true);
 	};
 	function StartMassMessageFriends(Format){
@@ -463,7 +461,7 @@ function MassMessageFriends(boobs, SearchBreakUnfriendFix){
 				let a_new = document.createElement("a");
 				a_new.name = "MassMessageLink";
 				a_new.setAttribute("mass-message", "false");
-				a_new.setAttribute("mass-message-user", a.parentNode.parentNode.getElementsByClassName("link span f5 fw7 secondary")[0].innerHTML);
+				a_new.setAttribute("mass-message-user", a.parentNode.parentNode.querySelector("a.link.f5.fw7.secondary").innerHTML);
 				a_new.className = "mid-gray hover-silver link underline";
 				a_new.style.float = "right";
 				a_new.innerHTML = "add to mass message";
@@ -502,9 +500,7 @@ function SearchFriends(cute){
 	};
     function Step_1(){
         if(AlreadySearched === false){
-            chrome.storage.sync.set({
-                SearchFriendsListNumber: FriendCount
-            });
+			SetSync("SearchFriendsListNumber", FriendCount);
             AlreadySearched = true;
             if(pagination){
 				if(!document.getElementById("LoadingContainer")){
@@ -541,7 +537,7 @@ function SearchFriends(cute){
                 LoadedHTML.innerHTML = NextPage;
 				let card = LoadedHTML.getElementsByClassName("w-50-ns w-100 ph1");
                 for(let a of card){
-					let Username = a.getElementsByClassName("link span f5 fw7 secondary")[0];
+					let Username = a.querySelector("a.link.f5.fw7.secondary");
 					let UserID = Username.href.split("/users/")[1];
 					let Avatar = a.querySelector("img[src*='fetlife.com']").src;
 					let AGR = a.getElementsByClassName("f6 fw7 silver")[0].innerText;
@@ -554,9 +550,7 @@ function SearchFriends(cute){
                     Step_2();
                 }else{
 					DoneLoading = true;
-					chrome.storage.sync.set({
-						SearchedFriends: SearchFriendsList
-					});
+					SetSync("SearchedFriends", SearchFriendsList);
                     Step_3();
                 };
             });
@@ -571,9 +565,7 @@ function SearchFriends(cute){
 				let UserLoc = a.querySelector("div.f6.lh-copy.fw4.silver.nowrap.truncate").innerText;
 				SearchFriendsList.push([Username.innerText, UserID, Avatar, AGR, UserLoc]);
 			};
-            chrome.storage.sync.set({
-				SearchedFriends: SearchFriendsList
-			});
+            SetSync("SearchedFriends", SearchFriendsList);
 			DoneLoading = true;
             Step_3();
 		};
@@ -692,11 +684,19 @@ function SearchFriends(cute){
 			//This loads the new "MassMessageFriendsList" each load
 			//That way the list is always current if user decides to add/remove peeps
 			//If this wasn't here, it would always load the old list that was loaded when the page first loaded.
-			let asdf = new Promise(function(resolve, reject){
-				chrome.storage.sync.get(null, resolve);
-			});
+            let asdf = new Promise(async function(resolve, reject){
+                if(isExtension){
+                    chrome.storage.sync.get(null, resolve);
+                }else{
+                    let rawr = {};
+                    for(let key of await GM.listValues()){
+                        rawr[key] = JSON.parse(await GM.getValue(key));
+                    };
+                    resolve(rawr);
+                };
+            });
 			asdf.then(function(b){
-				MassMessageFriends(b, false); //Second value fixes a bug with 
+				MassMessageFriends(b, false); //Second value fixes a bug with
 			}, onError);
         };
 	};

@@ -1,4 +1,5 @@
 const isExtension = (typeof GM === "undefined") ? true : false;
+// Gets requested item value
 const GetSync = new Promise(async function(resolve, reject){
     if(isExtension){
         chrome.storage.sync.get(null, resolve);
@@ -10,6 +11,32 @@ const GetSync = new Promise(async function(resolve, reject){
         resolve(rawr);
     };
 });
+// Set an items value
+const SetSync = async function(item, value){
+    if(isExtension){
+        chrome.storage.sync.set(item, value);
+    }else{
+        await GM.setValue(item, JSON.stringify(value));
+    };
+};
+// Delete Single Value in FetLifeEnhancer
+const DeleteSync = async function(item){
+    if(isExtension){
+        chrome.storage.sync.remove(item);
+    }else{
+        await GM.deleteValue(item);
+    };
+};
+// Delete All values in FetlifeEnhancer
+const ClearSync = async function(){
+    if(isExtension){
+        chrome.storage.sync.clear();
+    }else{
+        for(let key of await GM.listValues()){
+            DeleteSync(key);
+        };
+    };
+}
 var main_url = "https://fetlife.com";
 var Location = window.location.href.split(".com")[1].split("?")[0];
 var LoadingInsides = "<center><img src='https://ass1.fetlife.com/std/spinners/circle_big.gif' /></center>";
@@ -189,6 +216,21 @@ function validURL(str) {
 };
 function StillLoading(Func){
 	setTimeout(Func, 100);
+};
+function waitForElement(querySelector, timeout = 0){
+    const startTime = new Date().getTime();
+    return new Promise((resolve, reject)=>{
+        const timer = setInterval(()=>{
+            const now = new Date().getTime();
+            if(querySelector){
+                clearInterval(timer);
+                resolve();
+            }else if(timeout && now - startTime >= timeout){
+                clearInterval(timer);
+                reject();
+            };
+        }, 100);
+    });
 };
 function onError(error){
 	console.log(`Error: ${error}`);

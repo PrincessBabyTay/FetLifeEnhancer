@@ -67,9 +67,10 @@ function FloatNavigation(){
 
 function GoogleCalendar(){
     function ConvertTime(a){
-        return a.toISOString().replace(/-|:|\.\d\d\d/g, "");
-        //Old Line (removed TimezoneOffset - Caused it not to work properly)
-        //return a.setMinutes(a.getMinutes() + a.getTimezoneOffset()), a.toISOString().replace(/-|:|\.\d\d\d/g, "");
+        // New way doesn't work anymore, using old way again.  Keeping just in case.
+        //return a.toISOString().replace(/-|:|\.\d\d\d/g, "");
+        // Old Line (removed TimezoneOffset - Caused it not to work properly)
+        return a.setMinutes(a.getMinutes() + a.getTimezoneOffset()), a.toISOString().replace(/-|:|\.\d\d\d/g, "");
     };
     function CheckURL(a){
         let NewURL = (a.length > 8190) ? a.slice(0, 8200) : a;
@@ -78,27 +79,27 @@ function GoogleCalendar(){
         };
         return NewURL;
     };
-    let maincontent = document.getElementById("main-content");
+    let maincontent = document.querySelector("#main-content > div");
     let event_url = "Event Link:%0A" + window.location;
-    let event_name = encodeURIComponent(maincontent.querySelector("h1").innerText);
+    let event_name = encodeURIComponent(maincontent.querySelector("header h1").innerText);
     let event_table = maincontent.querySelector("main + aside");
     let event_start = "";
     let event_end = "";
-    if(event_table.querySelector("time[datetime]").getAttribute("datetime")){
-        event_start = ConvertTime(new Date(event_table.querySelector("time[datetime]:nth-of-type(1)").getAttribute("datetime")));
-        event_end = ConvertTime(new Date(event_table.querySelector("time[datetime]:nth-of-type(2)").getAttribute("datetime")));
-    }else if(event_table.querySelector("p:first-of-type")){
-        let TestTime = new RegExp("([a-zA-Z]{3}) ([0-9]{1,2}) ([a-zA-Z]{3,4}), ([0-9]{1,2}):([0-9]{1,2}) ([a-zA-Z]{2}) .* ([0-9]{1,2}):([0-9]{1,2}) ([a-zA-Z]{2})","g");
-        if(TestTime.test(event_table.querySelector("p:first-of-type").innerText)){
+    if(event_table.querySelector("p.mv0.text.f5.lh-copy.flex-auto:first-of-type")){
+        //let TestTime = new RegExp("([a-zA-Z]{3}) ([0-9]{1,2}) ([a-zA-Z]{3,4}), ([0-9]{1,2}):([0-9]{1,2}) ([a-zA-Z]{2}) .* ([0-9]{1,2}):([0-9]{1,2}) ([a-zA-Z]{2})","g");
+        let TestTime = new RegExp(/[a-zA-Z]{6,7}, ([a-zA-Z]{3,4}) ([0-9]{1,2}), ([0-9]{4})\n([0-9]{1,2}):([0-9]{1,2}) ([a-zA-Z]{2}) - ([0-9]{1,2}):([0-9]{1,2}) ([a-zA-Z]{2})/g);
+        //alert(TestTime.test(event_table.querySelector("p.mv0.text.f5.lh-copy.flex-auto:first-of-type").innerText));
+        if(TestTime.test(event_table.querySelector("p.mv0.text.f5.lh-copy.flex-auto:first-of-type").innerText)){
             let DATE = new Date();
             let Year = DATE.getFullYear();
             let Months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            let Month = (+Months.indexOf(RegExp.$3) + 1).toString();
+            let Month = (+Months.indexOf(RegExp.$1) + 1).toString();
             let StartHour = ((RegExp.$6 == "PM") ? +RegExp.$4 + 12 : RegExp.$4) + ":" + ((RegExp.$5.length === 1) ? "0" + RegExp.$5 : RegExp.$5);
             let EndHour = ((RegExp.$9 == "PM") ? +RegExp.$7 + 12 : RegExp.$7) + ":" + ((RegExp.$8.length === 1) ? "0" + RegExp.$8 : RegExp.$8);
             let ISODate = Year + "-" + ((Month.length == 1) ? "0" + Month : Month) + "-" + ((RegExp.$2.length === 1) ? "0" + RegExp.$2 : RegExp.$2) + "T";
-            let StartTime = +ISODate + +StartHour + ":00Z";
-            let EndTime = +ISODate + +EndHour + ":00Z";
+            let StartTime = ISODate + StartHour + ":00Z";
+            let EndTime = ISODate + EndHour + ":00Z";
+            //lert("start: " + StartTime + "\nend: " + EndTime);
             event_start = ConvertTime(new Date(StartTime));
             event_end = ConvertTime(new Date(EndTime));
         };
@@ -458,11 +459,11 @@ function QEAboutMe(Format, Karen){
                 badge_area.getElementsByTagName("div")[2] ? badge_area.getElementsByTagName("div")[2].after(FLEDebug) : badge_area.appendChild(FLEDebug);
                 document.querySelector(".FLE-Debug").addEventListener("click", function(){
                     if(!Karen.DebugFLE){
-                        chrome.storage.sync.set({DebugFLE: true});
+                        SetSync("DebugFLE", true);
                         document.body.style.border = "3px solid red";
                         this.innerHTML = "Turn Debug Off";
                     }else{
-                        chrome.storage.sync.remove("DebugFLE");
+                        DeleteSync("DebugFLE");
                         document.body.style.border = "";
                         this.innerHTML = "Turn Debug On";
                     };
@@ -663,9 +664,7 @@ function QuickReply(pacifier, FormatButtons){
                 }else{
                     QuickReplies[a.getAttribute("index")] = [Name, Description];
                 };
-                chrome.storage.sync.set({
-                    QuickReplyList: QuickReplies
-                });
+                SetSync("QuickReplyList", QuickReplies);
             }else if(Name === ""){
                 alert("You must insert a name for the quick reply!");
             }else if(Description === ""){
@@ -688,11 +687,9 @@ function QuickReply(pacifier, FormatButtons){
                 };
                 --QuickReplyIndex;
                 a.remove();
-                chrome.storage.sync.set({
-                    QuickReplyList: QuickReplies
-                });
+                SetSync("QuickReplyList", QuickReplies);
                 if(QuickReplies.length == 0){
-                    chrome.storage.sync.remove("QuickReplyList");
+                    DeleteSync("QuickReplyList");
                 };
             };
         };
@@ -732,65 +729,73 @@ function QuickReply(pacifier, FormatButtons){
             c += "<a href='javascript:void(0);' name='QR' index='" + x + "' class='mt3 flex items-center no-underline flex-none silver hover-moon-gray fill-silver hover-fill-moon-gray'><span class='relative pd1 f6 fw4'>" + pacifier.QuickReplyList[x][0] + "</span></a>";
         };
         b.innerHTML = c;
-        let rawr = document.querySelector("#main-content > div > div div.ph4.pt4 > form[action$='archive']").parentNode;
-        rawr.before(b);
-        //Mobile Quick Reply Button
-        if(window.MobileCheck() === true || pacifier.DebugFLE){
-            let MobileArchive = document.querySelector("main.vh-main-small form[action$='archive']");
-            let a = MobileArchive.parentNode;
-            a.classList.add("pl2");
-            let b = document.createElement("div");
-            b.className = "dib w-50 pr2";
-            b.innerHTML = "<div id='QRConvoMobile' style='cursor: pointer;' class='relative items-center link br1 us-none ba moon-gray b--near-black hover-moon-gray bg-near-black bg-animate fill-moon-gray fw4  tc db w-100 lh-normal f16 pv08 ph3 ph4-ns'><span class='f5'>Quick Reply</span></div>";
-            a.before(b);
-            //Create module for quick replies
-            let copy = document.querySelector("[data-id='delete-conversation']").cloneNode(true);
-            copy.id = "QRModule";
-            copy.querySelector("h3").innerHTML = "Quick Replies";
-            copy.querySelector("a[data-modal-secondary-action-button]").href = "javascript:void(0);";
-            copy.querySelector("button").parentNode.remove();
-            let Quickies = "";
-            for(let x in pacifier.QuickReplyList){
-                Quickies += "<a href='javascript:void(0);' name='QR' mobile='true' index='" + x + "'><span>" + pacifier.QuickReplyList[x][0] + "</span></a><br />";
+        // Had to Move all of this stuff into a function to make sure the elements needed were loaded.
+        function AddRQLinks(){
+            if(!document.querySelector("a.db.mt3.silver.link.hover-moon-gray.fill-gray.f6")){
+                StillLoading(AddRQLinks, 100);
+            }
+            if(!document.getElementById("QuickReplyAction")){
+                document.querySelector("a.db.mt3.silver.link.hover-moon-gray.fill-gray.f6").parentNode.before(b);
             };
-            copy.querySelector("[data-modal-body] > p").innerHTML = Quickies;
-            document.body.append(copy);
-            let QRM = document.querySelector("#QRModule");
-            function ToggleQRM(){
-                if(QRM.classList.contains("dn")){
-                    QRM.classList.contains("fade-out") ? QRM.classList.replace("fade-out","fade-in") : QRM.classList.add("fade-in");
-                    QRM.classList.remove("dn");
-                }else{
-                    QRM.classList.replace("fade-in","fade-out");
-                    setTimeout(function(){
-                        QRM.classList.add("dn");
-                    }, 300);
+            //Mobile Quick Reply Button
+            if(window.MobileCheck() === true /*|| pacifier.DebugFLE*/){
+                let MobileArchive = document.querySelector("main.vh-main-small form[action$='archive']");
+                let a = MobileArchive.parentNode;
+                a.classList.add("pl2");
+                let b = document.createElement("div");
+                b.className = "dib w-50 pr2";
+                b.innerHTML = "<div id='QRConvoMobile' style='cursor: pointer;' class='relative items-center link br1 us-none ba moon-gray b--near-black hover-moon-gray bg-near-black bg-animate fill-moon-gray fw4  tc db w-100 lh-normal f16 pv08 ph3 ph4-ns'><span class='f5'>Quick Reply</span></div>";
+                a.before(b);
+                //Create module for quick replies
+                let copy = document.querySelector("[data-id='delete-conversation']").cloneNode(true);
+                copy.id = "QRModule";
+                copy.querySelector("h3").innerHTML = "Quick Replies";
+                copy.querySelector("a[data-modal-secondary-action-button]").href = "javascript:void(0);";
+                copy.querySelector("button").parentNode.remove();
+                let Quickies = "";
+                for(let x in pacifier.QuickReplyList){
+                    Quickies += "<a href='javascript:void(0);' name='QR' mobile='true' index='" + x + "'><span>" + pacifier.QuickReplyList[x][0] + "</span></a><br />";
+                };
+                copy.querySelector("[data-modal-body] > p").innerHTML = Quickies;
+                document.body.append(copy);
+                let QRM = document.querySelector("#QRModule");
+                function ToggleQRM(){
+                    if(QRM.classList.contains("dn")){
+                        QRM.classList.contains("fade-out") ? QRM.classList.replace("fade-out","fade-in") : QRM.classList.add("fade-in");
+                        QRM.classList.remove("dn");
+                    }else{
+                        QRM.classList.replace("fade-in","fade-out");
+                        setTimeout(function(){
+                            QRM.classList.add("dn");
+                        }, 300);
+                    };
+                };
+                document.querySelector("#QRConvoMobile").addEventListener("click", ToggleQRM);
+                window.onclick = function(manufacture){
+                    if(manufacture.target === QRM.querySelector(":first-child")){
+                        ToggleQRM();
+                    };
+                };
+                QRM.querySelector("a[data-modal-secondary-action-button]").addEventListener("click", ToggleQRM);
+                QRM.querySelector("svg").parentNode.addEventListener("click", ToggleQRM);
+            };
+            //Did they press the QR Link????? :o!
+            for(let x of document.querySelectorAll("a[name='QR']")){
+                x.onclick = function(){
+                    let text_ = document.getElementById("new-message-textarea");
+                    text_.value = pacifier.QuickReplyList[x.getAttribute("index")][1];
+                    document.querySelector("button[name='button']").setAttribute("style","opacity: 1 !important; cursor: pointer !important;");
+                    text_.onkeyup = function(){
+                        document.querySelector("button[name='button']").removeAttribute("style");
+                    };
+                    if(x.getAttribute("mobile")){
+                        ToggleQRM();
+                    };
+                    text_.focus();
                 };
             };
-            document.querySelector("#QRConvoMobile").addEventListener("click", ToggleQRM);
-            window.onclick = function(manufacture){
-                if(manufacture.target === QRM.querySelector(":first-child")){
-                    ToggleQRM();
-                };
-            };
-            QRM.querySelector("a[data-modal-secondary-action-button]").addEventListener("click", ToggleQRM);
-            QRM.querySelector("svg").parentNode.addEventListener("click", ToggleQRM);
         };
-        //Did they press the QR Link????? :o!
-        for(let x of document.querySelectorAll("a[name='QR']")){
-            x.onclick = function(){
-                let text_ = document.getElementById("new-message-textarea");
-                text_.value = pacifier.QuickReplyList[x.getAttribute("index")][1];
-                document.querySelector("button[name='button']").setAttribute("style","opacity: 1 !important; cursor: pointer !important;");
-                text_.onkeyup = function(){
-                    document.querySelector("button[name='button']").removeAttribute("style");
-                };
-                if(x.getAttribute("mobile")){
-                    ToggleQRM();
-                };
-                text_.focus();
-            };
-        };
+        AddRQLinks();
     };
     if(location.href.match("/(inbox|conversations)") && document.querySelector("div#main-content div div aside > div > div") && !document.getElementById("QuickReplySettingsLink")){
         //Desktop Links:
@@ -832,14 +837,14 @@ function QuickReply(pacifier, FormatButtons){
             document.querySelector("div#main-content aside a.moon-gray.hover-moon-gray.bg-near-black").className = "flex-none no-underline fade-color db pv06 ph3 f6 br1 lh-copy mt2-l gray hover-silver";
             document.getElementById("QuickReplySettingsLink").className = "flex items-center pv2 ph3 link br1 f6 text hover-near-white bg-near-black";
             let header = "<header class='h-48 flex items-center bb b--primary pl2 pr3 lh-copy'><h6 class='flex-auto dn db-l text mv0 f16 fw4 pl2'>Quick Reply Settings" + (pacifier.DebugFLE ? " - <a id='DeleteAll' href='javascript:void(0);'>(delete all)</a> | <a href='javascript:void(0);' id='Alert'>(Alert)</a>" : "") + "</h6></header>";
-            document.querySelector("#chat > main").outerHTML = "<main id='QuickReplySettings' style='flex-auto h-100 overflow-auto relative z-3'>" + header + d + "</main>";
+            document.querySelector("div > main").outerHTML = "<main id='QuickReplySettings' style='flex-auto h-100 overflow-auto relative z-3'>" + header + d + "</main>";
         };
-        if(window.MobileCheck() === true || pacifier.DebugFLE){
+        if(window.MobileCheck() === true/* || pacifier.DebugFLE */){
             let header = document.querySelector("main > header");
             let dropdown = header.querySelector("div > div");
             dropdown.querySelector("a[title='Navigation']").href = "/inbox";
             dropdown.querySelector("a[title='Navigation'] h6").innerHTML = "< Back to Inbox";
-            document.querySelector("#chat > main").outerHTML = "<main id='QuickReplySettings' style='width: 100%'>" + header.outerHTML + d + "</main>";
+            document.querySelector("div > main").outerHTML = "<main id='QuickReplySettings' style='width: 100%'>" + header.outerHTML + d + "</main>";
         };
         document.getElementById("AddQuickReply").addEventListener("click", AddQuickReply);
         for(let i of document.getElementsByClassName("EditMe")){
@@ -855,7 +860,7 @@ function QuickReply(pacifier, FormatButtons){
         if(pacifier.DebugFLE){
             document.getElementById("DeleteAll").onclick = function(){
                 window.location.reload(true);
-                chrome.storage.sync.remove("QuickReplyList");
+                DeleteSync("QuickReplyList");
             };
             document.getElementById("Alert").onclick = function(){ alert(QuickReplies.length + " : " + QuickReplies) };
         };
@@ -864,7 +869,8 @@ function QuickReply(pacifier, FormatButtons){
 
 function MassArchiveDeleteMessages(){
     function PlaceCheckbox(){
-        document.querySelectorAll("div[data-conversation]").forEach(function(a){
+        let AllMessages = document.getElementsByClassName("relative flex items-center w-100 pa3 hover-bg-primary bg-animate pointer bb b--primary hover-show bg-transparent")
+        for(let a of AllMessages){
             if(!a.querySelector("input[name='CheckConvo']")){
                 let URL = a.querySelector("a[href*='/conversations']").href.split("#newest_message")[0];
                 let ClickEvent = a.getAttribute("onclick");
@@ -878,9 +884,14 @@ function MassArchiveDeleteMessages(){
                 div.setAttribute("style", "width: 4%; height: 100%;");
                 div.innerHTML = "<input type='checkbox' name='CheckConvo' conversation-url='" + URL + "' style='width: 20px; height: 20px;' />";
                 a.insertBefore(div, a.firstChild);
-                a.parentElement.innerHTML = a.parentElement.innerHTML;
+
+                 // Removes all Event Listeners.  Old way (Commented out right below), no longer worked.
+                // Basically just cuts and pastes the element, which in turn removes event listeners.
+                //a.parentElement.innerHTML = a.parentElement.innerHTML;
+                let Clone_A = a.cloneNode(true);
+                a.parentNode.replaceChild(Clone_A, a);
             };
-        });
+        };
     };
     function AUD(){
         let Messages = document.querySelectorAll("input[name='CheckConvo']:checked");
@@ -900,11 +911,12 @@ function MassArchiveDeleteMessages(){
                     let auth = document.querySelector("meta[name='csrf-token']").getAttribute("content");
                     let name = document.querySelector("meta[name='csrf-param']").getAttribute("content");
                     AJAXPost(URL + "/archive", {[name]: auth}).then(function(resolve){
-                        a.parentNode.parentNode.parentNode.remove();
+                        a.parentNode.parentNode.remove();
                         if(Messages.lengh == null){
                             document.getElementById("Completed").className = "pv2 ph3 tc f5 lh-title light-gray bg-green";
                             document.getElementById("Completed").innerHTML = Messages.length + " conversations archived!";
                         };
+                        alert(resolve);
                     }, onError);
                 };
             };
@@ -915,7 +927,7 @@ function MassArchiveDeleteMessages(){
                     let auth = document.querySelector("meta[name='csrf-token']").getAttribute("content");
                     let name = document.querySelector("meta[name='csrf-param']").getAttribute("content");
                     AJAXPost(URL + "/unarchive", {[name]: auth}).then(function(resolve){
-                        a.parentNode.parentNode.parentNode.remove();
+                        a.parentNode.parentNode.remove();
                         if(Messages.lengh == null){
                             document.getElementById("Completed").className = "pv2 ph3 tc f5 lh-title light-gray bg-green";
                             document.getElementById("Completed").innerHTML = Messages.length + " conversations unarchived!";
@@ -931,7 +943,7 @@ function MassArchiveDeleteMessages(){
                         let auth = document.querySelector("meta[name='csrf-token']").getAttribute("content");
                         let name = document.querySelector("meta[name='csrf-param']").getAttribute("content");
                         AJAXPost(URL, {"utf8": "✓", "_method": "delete", [name]: auth}).then(function(resolve){
-                            a.parentNode.parentNode.parentNode.remove();
+                            a.parentNode.parentNode.remove();
                             if(Messages.lengh == null){
                                 document.getElementById("Completed").className = "pv2 ph3 tc f5 lh-title light-gray bg-green";
                                 document.getElementById("Completed").innerHTML = Messages.length + " conversations deleted. Hasta la vista, baby!";
@@ -944,9 +956,9 @@ function MassArchiveDeleteMessages(){
             alert("You might want to select some messages before you do that...");
             return;
         };
-        document.getElementById("chat").scrollTo({top: 0, left: 0, behavior: "smooth"});
+        document.querySelector("div > main").scrollTo({top: 0, left: 0, behavior: "smooth"});
     };
-    let h6 = (window.MobileCheck() === false) ? document.querySelector("div#chat > main > header > h6") : document.querySelector("div#chat > main > header > div");
+    let h6 = (window.MobileCheck() === false) ? document.querySelector("div > main > header > h6") : document.querySelector("div > main > header > div");
     let Archive = "<button name='ArchiveAll' style='margin: 0px 3px 0px 3px;' class='text pv2 ph3 f5 br1 pointer bg-animate link bg-dark-secondary hover-secondary-light bn'><span class='relative pd1'><span class='fill-moon-gray pen'><svg xmlns='http://www.w3.org/2000/svg' width='11px' height='11px' viewBox='0 0 16 16' class='mr1 pen'><path d='M15.5555556,1.95555556 L14.3111111,0.444444444 C14.1333333,0.177777778 13.7777778,0 13.3333333,0 L2.66666667,0 C2.22222222,0 1.86666667,0.177777778 1.6,0.444444444 L0.444444444,1.95555556 C0.177777778,2.31111111 0,2.66666667 0,3.11111111 L0,14.2222222 C0,15.2 0.8,16 1.77777778,16 L14.2222222,16 C15.2,16 16,15.2 16,14.2222222 L16,3.11111111 C16,2.66666667 15.8222222,2.31111111 15.5555556,1.95555556 Z M8,12.8888889 L3.11111111,8 L6.22222222,8 L6.22222222,6.22222222 L9.77777778,6.22222222 L9.77777778,8 L12.8888889,8 L8,12.8888889 Z M1.86666667,1.77777778 L2.57777778,0.888888889 L13.2444444,0.888888889 L14.0444444,1.77777778 L1.86666667,1.77777778 Z'></path></svg></span>Archive</span></button>";
     let Unarchive = "<button name='UnarchiveAll' style='margin: 0px 3px 0px 3px;' class='text pv2 ph3 f5 br1 pointer bg-animate link bg-dark-secondary hover-secondary-light bn'><span class='relative pd1'><span class='fill-moon-gray pen'><svg xmlns='http://www.w3.org/2000/svg' width='11px' height='11px' viewBox='0 0 16 16' class='mr1 pen'><path d='M15.5555556,1.95555556 L14.3111111,0.444444444 C14.1333333,0.177777778 13.7777778,0 13.3333333,0 L2.66666667,0 C2.22222222,0 1.86666667,0.177777778 1.6,0.444444444 L0.444444444,1.95555556 C0.177777778,2.31111111 0,2.66666667 0,3.11111111 L0,14.2222222 C0,15.2 0.8,16 1.77777778,16 L14.2222222,16 C15.2,16 16,15.2 16,14.2222222 L16,3.11111111 C16,2.66666667 15.8222222,2.31111111 15.5555556,1.95555556 Z M8,12.8888889 L3.11111111,8 L6.22222222,8 L6.22222222,6.22222222 L9.77777778,6.22222222 L9.77777778,8 L12.8888889,8 L8,12.8888889 Z M1.86666667,1.77777778 L2.57777778,0.888888889 L13.2444444,0.888888889 L14.0444444,1.77777778 L1.86666667,1.77777778 Z'></path></svg></span>Unarchive</span></button>";
     let Delete = "<button name='DeleteAll' style='margin: 0px 3px 0px 3px;' class='text pv2 ph3 f5 br1 pointer bg-animate link bg-dark-secondary hover-secondary-light bn'><span class='relative pd1'><span class='fill-moon-gray pen'><svg xmlns='http://www.w3.org/2000/svg' width='11px' height='11px' viewBox='0 0 16 16' class='mr1 pen'><path d='M7,0 C5.9,0 5,0.9 5,2 L3,2 C1.9,2 1,2.9 1,4 L15,4 C15,2.9 14.1,2 13,2 L11,2 C11,0.9 10.1,0 9,0 L7,0 Z M3,6 L3,15.62 C3,15.84 3.16,16 3.38,16 L12.64,16 C12.86,16 13.02,15.84 13.02,15.62 L13.02,6 L11.02,6 L11.02,13 C11.02,13.56 10.58,14 10.02,14 C9.46,14 9.02,13.56 9.02,13 L9.02,6 L7.02,6 L7.02,13 C7.02,13.56 6.58,14 6.02,14 C5.46,14 5.02,13.56 5.02,13 L5.02,6 L3.02,6 L3,6 Z'></path></svg></span>Delete</span></button>";
@@ -965,7 +977,7 @@ function MassArchiveDeleteMessages(){
              document.getElementsByName("ArchiveAll")[0].onclick = AUD;
              document.getElementsByName("DeleteAll")[0].onclick = AUD;
         };
-        document.querySelector("div#chat > main").addEventListener("scroll", PlaceCheckbox);
+        document.querySelector("div > main").addEventListener("scroll", PlaceCheckbox);
         PlaceCheckbox();
     };
 };
