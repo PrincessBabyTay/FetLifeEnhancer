@@ -6,7 +6,7 @@ Changes["2.4.4"] = [
     "Fixed a bug with \"Mass Message Events\" that caused it not to work.",
     "Fixed a bug with \"Quick Replies\" that caused it not to work.",
     "Fixed a bug with \"Add To Google Calendar\" that caused it not to work.",
-    "Heavility updated code to match TamperMonkey script."
+    "Heavily updated code to match TamperMonkey script."
 ];
 Changes["2.4.3"] = [
     "Updated \"Search Friends\" to work around Fetlifes new Search Friends feature.",

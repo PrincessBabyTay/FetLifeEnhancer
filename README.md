@@ -12,4 +12,4 @@ Instructions to install are on my FetLife Enhancer group page in the [Getting St
 ## UserScript
 The Userscript can be installed using the [TamperMonkey](https://www.tampermonkey.net/) or [GreaseMonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) extension.  TamperMonkey works on most browsers where as GreaseMonkey only works on FireFox.
 
-Again, any questions can be directed towards my Fetife Group, [FetLife Enhancer](https://fetlife.com/groups/188715/about)
+Again, any questions can be directed towards my FetLife Group, [FetLife Enhancer](https://fetlife.com/groups/188715/about)
