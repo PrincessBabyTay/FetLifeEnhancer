@@ -1,4 +1,8 @@
 let Changes = new Array();
+Changes["2.4.5"] = [
+    "Fixed a bug with the \"FLE Settings\" link not showing up in the sidebar.",
+    "Fixed a bug with \"Create Guest List\" that caused it not to work"
+];
 Changes["2.4.4"] = [
     // Mass Archive/Delete Messages AJAX doesn't work.
     // Update Locations Script (Might not be worth it, might not work as wanted)

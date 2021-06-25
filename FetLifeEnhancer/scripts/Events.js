@@ -253,7 +253,7 @@ function Locations(item){
 	let Debug = item.DebugFLE;
 	let Tabs = document.getElementById("tabnav");
 	for(let a of item.Locations){
-		Tabs.innerHTML += "<li><a href='javascript:void(0)' class='LocationLink' name='" + a[1] + "'>" + a[0] + "</a></li> ";
+		Tabs.innerHTML += "<li><a href='javascript:void(0);' class='LocationLink' name='" + a[1] + "'>" + a[0] + "</a></li> ";
 	};
 	const LocationLinks = document.getElementsByClassName("LocationLink");
 	for(let work of LocationLinks){
@@ -307,7 +307,7 @@ function ExportToCSV(hiya){
 					let Users;
 					for(let a of user){
 						if(NewMassMessage == true){
-							Users = a.getElementsByClassName("link span f5 fw7 secondary")[0];
+							Users = a.querySelector("a.link.f5.fw7.secondary");
 							Username = Users.innerText;
 							UserLower = Username.toLowerCase();
 							UserID = Users.href.split("/users/")[1];
@@ -339,7 +339,7 @@ function ExportToCSV(hiya){
 				let Users;
 				for(let a of user){
 					if(NewMassMessage == true){
-						Users = a.getElementsByClassName("link span f5 fw7 secondary")[0];
+						Users = a.querySelector("a.link.f5.fw7.secondary");
 						Username = Users.innerText;
 						UserLower = Username.toLowerCase();
 						UserID = Users.href.split("/users/")[1];
