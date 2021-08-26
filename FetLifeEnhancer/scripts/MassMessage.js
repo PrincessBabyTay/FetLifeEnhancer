@@ -79,56 +79,28 @@ function MassMessageEvent(item){
 					Step2();
 				}, 500);
 			}else{
-				SendUserMsg(AllUsers[OnNumber][0], AllUsers[OnNumber][1]);
+				SendMsg(AllUsers[OnNumber][0], AllUsers[OnNumber][1]);
 			};
 		};
 	};
-	function SendUserMsg(id, user){
-		if(!document.getElementById("SendMassMessage")){
-			let iframe = document.createElement("iframe");
-			iframe.name = "SendMassMessage";
-			iframe.id = "SendMassMessage";
-			iframe.src = main_url + "/conversations/new?with=" + id;
-			iframe.style.display = "none";
-			iframe.sandbox = "allow-forms allow-scripts allow-pointer-lock allow-same-origin";
-			document.body.appendChild(iframe);
-            document.getElementById("SendMassMessage").onload = function(){
-                SendMsg();
-                this.onload = null;
-			};
-		}else{
-			document.getElementById("SendMassMessage").src = main_url + "/conversations/new?with=" + id;
-            document.getElementById("SendMassMessage").onload = function(){
-                SendMsg();
-                this.onload = null;
-			};
-		};
-	};
-	function SendMsg(){
-		let content = document.getElementById("SendMassMessage");
-		if(content.contentDocument.getElementById("subject") !== null){
-			content.contentDocument.getElementById("subject").value = mmSubject;
-			content.contentDocument.getElementById("body").value = mmBody;
-			content.contentDocument.getElementsByClassName("simple_form")[0].submit();
-			CheckIfSent();
-		}else if(content.contentDocument.getElementById("subject") === null){
-			document.getElementById("mmTable").innerHTML = "<div width='100%' class='large italic'><center>Error sending message to " + AllUsers[OnNumber][1] + "<br />User was de-activated or removed.<br />Messaging next person...</center></div>";
-			setTimeout(function(){
-				OnNumber++;
-				Step2();
-			}, 2000);
-		};
-	};
-	function CheckIfSent(){
-		let a = document.getElementById("SendMassMessage");
-		if(a.contentDocument.getElementsByClassName("notice")[0] !== null){
-			setTimeout(function(){
-				OnNumber++;
-				Step2();
-			}, 1200);
-		}else{
-			StillLoading(CheckIfSent);
-		};
+	function SendMsg(id, username){
+		let auth = document.querySelector("meta[name='csrf-token']").getAttribute("content");
+		let name = document.querySelector("meta[name='csrf-param']").getAttribute("content");
+		AJAXPost(main_url + "/conversations", {"with": [id], "subject": mmSubject, "body": mmBody, "source": "profile"}, auth).then(
+			function(OnSent){
+				setTimeout(function(){
+					OnNumber++;
+					Step2();
+				}, 1200);
+			},
+			function(NotSent){
+				document.getElementById("mmTable").innerHTML = "<div style='width: 100%; font-style: italic; font-size: 1.2em;'><center>Error sending message to " + AllUsers[OnNumber][1] + "<br />User was de-activated or removed.<br />Messaging next person...</center></div>";
+				setTimeout(function(){
+					OnNumber++;
+					Step2();
+				}, 2000);
+			}
+		);
 	};
 	let Format = getTypes(item.CheckboxName).AddFormatButtons;
 	let EventOwner;
@@ -377,59 +349,31 @@ function MassMessageFriends(boobs, SearchBreakUnfriendFix){
 					StartSendMMF();
 				}, 500);
 			}else{
-				SendFriendMsg(MassFriends[OnNumber][0], MassFriends[OnNumber][1]);
+				SendMsg(MassFriends[OnNumber][0], MassFriends[OnNumber][1]);
 			};
 		}else{
 			RemoveList();
 		};
 	};
-	function SendFriendMsg(id, username){
-		if(!document.getElementById("SendMassMessage")){
-			let iframe = document.createElement("iframe");
-			iframe.name = "SendMassMessage";
-			iframe.id = "SendMassMessage";
-			iframe.src =  main_url + "/conversations/new?with=" + id;
-			iframe.style.display = "none";
-			iframe.sandbox = "allow-forms allow-scripts allow-pointer-lock allow-same-origin";
-			document.getElementById("mmTable").appendChild(iframe);
-            document.getElementById("SendMassMessage").onload = function(){
-                SendMsg();
-                this.onload = null;
-			};
-		}else{
-			document.getElementById("SendMassMessage").src = main_url + "/conversations/new?with=" + id;
-            document.getElementById("SendMassMessage").onload = function(){
-                SendMsg();
-                this.onload = null;
-			};
-		};
-	};
-	function SendMsg(){
-		let content = document.getElementById("SendMassMessage");
-		if(content.contentDocument.getElementById("subject") !== null){
-			content.contentDocument.getElementById("subject").value = New_MMFS;
-			content.contentDocument.getElementById("body").value = New_MMFB;
-			content.contentDocument.getElementsByClassName("simple_form")[0].submit();
-			CheckIfSent();
-		}else if(content.contentDocument.getElementById("subject") === null){
-			document.getElementById("mmTable").innerHTML = "<div width='100%' class='large italic'><center>Error sending message to " + AllUsers[OnNumber][1] + "<br />User was de-activated or removed.<br />Messaging next person...</center></div>";
-			setTimeout(function(){
-				OnNumber++;
-				StartSendMMF();
-			}, 2000);
-		};
-	};
-	function CheckIfSent(){
-		let a = document.getElementById("SendMassMessage");
-		if(a.contentDocument.getElementsByClassName("notice")[0] !== null){
-			document.getElementById("MassFriendsNumber").innerHTML = MassFriends.length - OnNumber;
-			setTimeout(function(){
-				OnNumber++;
-				StartSendMMF();
-			}, 1200);
-		}else{
-			StillLoading(CheckIfSent);
-		};
+	function SendMsg(id, username){
+		let auth = document.querySelector("meta[name='csrf-token']").getAttribute("content");
+		let name = document.querySelector("meta[name='csrf-param']").getAttribute("content");
+		AJAXPost(main_url + "/conversations", {"with": [id], "subject": New_MMFS, "body": New_MMFB, "source": "profile"}, auth).then(
+			function(OnSent){
+				document.getElementById("MassFriendsNumber").innerHTML = MassFriends.length - OnNumber;
+				setTimeout(function(){
+					OnNumber++;
+					Step2();
+				}, 1200);
+			},
+			function(NotSent){
+				document.getElementById("mmTable").innerHTML = "<div style='width: 100%; font-style: italic; font-size: 1.2em;'><center>Error sending message to " + AllUsers[OnNumber][1] + "<br />User was de-activated or removed.<br />Messaging next person...</center></div>";
+				setTimeout(function(){
+					OnNumber++;
+					Step2();
+				}, 2000);
+			}
+		);
 	};
 	var MassFriends = new Array();
 	let Format = getTypes(boobs.CheckboxName).AddFormatButtons;
