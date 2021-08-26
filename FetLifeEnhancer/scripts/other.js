@@ -185,6 +185,7 @@ function AJAXGet(url, NextPage, auth){
 function AJAXPost(url, options, auth){
 	return new Promise(function(resolve, reject){
 		/*
+		NOTES:  This commented area is old and only kept if Fetlife updates things again.
 		let params = typeof options == "string" ? options : Object.keys(options).map(
 			function(k){ return encodeURIComponent(k) + '=' + encodeURIComponent(options[k]) }
 		).join("&");

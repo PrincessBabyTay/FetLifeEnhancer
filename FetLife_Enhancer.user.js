@@ -1232,62 +1232,42 @@ function MassMessageEvent(item){
             Step2();
         };
     };
-    function Step2(){
-        document.getElementById("mmTable").innerHTML = "<div style='width: 100%; font-style: italic; font-size: 1.2em;'><center>All Messages Sent! :D</center></div>";
-        if(OnNumber <= AllUsers.length - 1){
-            mmSubject = (Old_mmSubject.match(/\{Username\}/g)) ? Old_mmSubject.replace(/\{Username\}/g, AllUsers[OnNumber][1]) : Old_mmSubject;
-            mmBody = (Old_mmBody.match(/\{Username\}/g)) ? Old_mmBody.replace(/\{Username\}/g, AllUsers[OnNumber][1]) : Old_mmBody;
-            document.getElementById("mmTable").innerHTML = "<div style='width: 100%; font-style: italic; font-size: 1.2em;'><center>Sending Message to " + AllUsers[OnNumber][1] + "</center></div>";
-            SendUserMsg(AllUsers[OnNumber][0], AllUsers[OnNumber][1]);
-        };
-    };
-    function SendUserMsg(id, user){
-        if(!document.getElementById("SendMassMessage")){
-            let iframe = document.createElement("iframe");
-            iframe.name = "SendMassMessage";
-            iframe.id = "SendMassMessage";
-            iframe.src = main_url + "/conversations/new?with=" + id;
-            iframe.style.display = "none";
-            iframe.sandbox = "allow-forms allow-scripts allow-pointer-lock allow-same-origin";
-            document.body.appendChild(iframe);
-            document.getElementById("SendMassMessage").onload = function(){
-                SendMsg();
-                this.onload = null;
-            };
-        }else{
-            document.getElementById("SendMassMessage").src = main_url + "/conversations/new?with=" + id;
-            document.getElementById("SendMassMessage").onload = function(){
-                SendMsg();
-                this.onload = null;
-            };
-        };
-    };
-    function SendMsg(){
-        let content = document.getElementById("SendMassMessage");
-        if(content.contentDocument.getElementById("subject") !== null){
-            content.contentDocument.getElementById("subject").value = mmSubject;
-            content.contentDocument.getElementById("body").value = mmBody;
-            content.contentDocument.getElementsByClassName("simple_form")[0].submit();
-            CheckIfSent();
-        }else if(content.contentDocument.getElementById("subject") === null){
-            document.getElementById("mmTable").innerHTML = "<div width='100%' class='large italic'><center>Error sending message to " + AllUsers[OnNumber][1] + "<br />User was de-activated or removed.<br />Messaging next person...</center></div>";
-            setTimeout(function(){
-                OnNumber++;
-                Step2();
-            }, 2000);
-        };
-    };
-    function CheckIfSent(){
-        let a = document.getElementById("SendMassMessage");
-        if(a.contentDocument.getElementsByClassName("notice")[0] !== null){
-            setTimeout(function(){
-                OnNumber++;
-                Step2();
-            }, 1200);
-        }else{
-            StillLoading(CheckIfSent);
-        };
-    };
+	function Step2(){
+		document.getElementById("mmTable").innerHTML = "<div style='width: 100%; font-style: italic; font-size: 1.2em;'><center>All Messages Sent! :D</center></div>";
+		if(OnNumber <= AllUsers.length - 1){
+			mmSubject = (Old_mmSubject.match(/\{Username\}/g)) ? Old_mmSubject.replace(/\{Username\}/g, AllUsers[OnNumber][1]) : Old_mmSubject;
+			mmBody = (Old_mmBody.match(/\{Username\}/g)) ? Old_mmBody.replace(/\{Username\}/g, AllUsers[OnNumber][1]) : Old_mmBody;	
+			document.getElementById("mmTable").innerHTML = "<div style='width: 100%; font-style: italic; font-size: 1.2em;'><center>Sending Message to " + AllUsers[OnNumber][1] + "</center></div>";
+			if((item.DebugFLE && item.DebugFLE == true) && pagination){
+				//document.getElementById("mmTable").parentNode.innerHTML += OnNumber + ". " + AllUsers[OnNumber][1] + "<br />" + document.getElementById("footer").innerHTML;
+				setTimeout(function(){
+					OnNumber++;
+					Step2();
+				}, 500);
+			}else{
+				SendMsg(AllUsers[OnNumber][0], AllUsers[OnNumber][1]);
+			};
+		};
+	};
+	function SendMsg(id, username){
+		let auth = document.querySelector("meta[name='csrf-token']").getAttribute("content");
+		let name = document.querySelector("meta[name='csrf-param']").getAttribute("content");
+		AJAXPost(main_url + "/conversations", {"with": [id], "subject": mmSubject, "body": mmBody, "source": "profile"}, auth).then(
+			function(OnSent){
+				setTimeout(function(){
+					OnNumber++;
+					Step2();
+				}, 1200);
+			},
+			function(NotSent){
+				document.getElementById("mmTable").innerHTML = "<div style='width: 100%; font-style: italic; font-size: 1.2em;'><center>Error sending message to " + AllUsers[OnNumber][1] + "<br />User was de-activated or removed.<br />Messaging next person...</center></div>";
+				setTimeout(function(){
+					OnNumber++;
+					Step2();
+				}, 2000);
+			}
+		);
+	};
     let Format = getTypes(item.CheckboxName).AddFormatButtons;
     let EventOwner;
     let NewMassMessage;
@@ -1517,60 +1497,39 @@ function MassMessageFriends(boobs, SearchBreakUnfriendFix){
 		document.getElementById("MassFriendsNumber").innerHTML = ((MassFriends.length - 1) >= OnNumber) ? (MassFriends.length) - OnNumber : "";
 		if(OnNumber <= MassFriends.length - 1){
 			New_MMFS = (Old_MMFS.match(/\{Username\}/g)) ? Old_MMFS.replace(/\{Username\}/g, MassFriends[OnNumber][1]) : Old_MMFS;
-			New_MMFB = (Old_MMFB.match(/\{Username\}/g)) ? Old_MMFB.replace(/\{Username\}/g, MassFriends[OnNumber][1]) : Old_MMFB;
+			New_MMFB = (Old_MMFB.match(/\{Username\}/g)) ? Old_MMFB.replace(/\{Username\}/g, MassFriends[OnNumber][1]) : Old_MMFB;	
 			document.getElementById("mmTable").innerHTML = "<div style='width: 100%; font-style: italic; font-size: 1.2em;'><center>Sending Message to " + MassFriends[OnNumber][1] + "</center></div>";
-            SendFriendMsg(MassFriends[OnNumber][0], MassFriends[OnNumber][1]);
+			if(boobs.DebugFLE && boobs.DebugFLE == true){
+				setTimeout(function(){
+					OnNumber++;
+					StartSendMMF();
+				}, 500);
+			}else{
+				SendMsg(MassFriends[OnNumber][0], MassFriends[OnNumber][1]);
+			};
 		}else{
 			RemoveList();
 		};
 	};
-	function SendFriendMsg(id, username){
-		if(!document.getElementById("SendMassMessage")){
-			let iframe = document.createElement("iframe");
-			iframe.name = "SendMassMessage";
-			iframe.id = "SendMassMessage";
-			iframe.src = main_url + "/conversations/new?with=" + id;
-			iframe.style.display = "none";
-			iframe.sandbox = "allow-forms allow-scripts allow-pointer-lock allow-same-origin";
-			document.getElementById("mmTable").appendChild(iframe);
-            document.getElementById("SendMassMessage").onload = function(){
-                SendMsg();
-                this.onload = null;
-			};
-		}else{
-			document.getElementById("SendMassMessage").src = main_url + "/conversations/new?with=" + id;
-            document.getElementById("SendMassMessage").onload = function(){
-                SendMsg();
-                this.onload = null;
-			};
-		};
-	};
-	function SendMsg(){
-		let content = document.getElementById("SendMassMessage");
-		if(content.contentDocument.getElementById("subject") !== null){
-			content.contentDocument.getElementById("subject").value = New_MMFS;
-			content.contentDocument.getElementById("body").value = New_MMFB;
-			content.contentDocument.getElementsByClassName("simple_form")[0].submit();
-			CheckIfSent();
-		}else if(content.contentDocument.getElementById("subject") === null){
-			document.getElementById("mmTable").innerHTML = "<div width='100%' class='large italic'><center>Error sending message to " + AllUsers[OnNumber][1] + "<br />User was de-activated or removed.<br />Messaging next person...</center></div>";
-			setTimeout(function(){
-				OnNumber++;
-				StartSendMMF();
-			}, 2000);
-		};
-	};
-	function CheckIfSent(){
-		let a = document.getElementById("SendMassMessage");
-		if(a.contentDocument.getElementsByClassName("notice")[0] !== null){
-			document.getElementById("MassFriendsNumber").innerHTML = MassFriends.length - OnNumber;
-			setTimeout(function(){
-				OnNumber++;
-				StartSendMMF();
-			}, 1200);
-		}else{
-			StillLoading(CheckIfSent);
-		};
+	function SendMsg(id, username){
+		let auth = document.querySelector("meta[name='csrf-token']").getAttribute("content");
+		let name = document.querySelector("meta[name='csrf-param']").getAttribute("content");
+		AJAXPost(main_url + "/conversations", {"with": [id], "subject": New_MMFS, "body": New_MMFB, "source": "profile"}, auth).then(
+			function(OnSent){
+				document.getElementById("MassFriendsNumber").innerHTML = MassFriends.length - OnNumber;
+				setTimeout(function(){
+					OnNumber++;
+					Step2();
+				}, 1200);
+			},
+			function(NotSent){
+				document.getElementById("mmTable").innerHTML = "<div style='width: 100%; font-style: italic; font-size: 1.2em;'><center>Error sending message to " + AllUsers[OnNumber][1] + "<br />User was de-activated or removed.<br />Messaging next person...</center></div>";
+				setTimeout(function(){
+					OnNumber++;
+					Step2();
+				}, 2000);
+			}
+		);
 	};
 	var MassFriends = new Array();
     let Format = getTypes(boobs.CheckboxName).AddFormatButtons;
@@ -1625,238 +1584,6 @@ function MassMessageFriends(boobs, SearchBreakUnfriendFix){
 		StartMassMessageFriends(Format);
 	};
 	LoadList();
-};
-function SearchFriends(cute){
-    function GetWithMyFriends(){
-        if(OldFriendCount === FriendCount && cute.SearchedFriends){
-            AlreadySearched = true;
-            DoneLoading = true;
-            if(cute.SearchedFriends){
-				for(let a of cute.SearchedFriends){
-					SearchFriendsList.push([a[0], a[1], a[2], a[3], a[4]]);
-				};
-			};
-        };
-	};
-    function Step_1(){
-        if(AlreadySearched === false){
-			SetSync("SearchFriendsListNumber", FriendCount);
-            AlreadySearched = true;
-            if(pagination){
-				if(!document.getElementById("LoadingContainer")){
-					document.querySelector("main header").after(LoadingContainer(true));
-					document.querySelector("main > div.flex").innerHTML = "";
-				};
-				pagination.style.display = "none";
-                links = pagination.getElementsByTagName("a");
-                currentPage = pagination.getElementsByClassName("current")[0];
-                lastPage = "";
-                //loadPage = currentPage.innerHTML;
-                loadPage = 1;
-                for(let z of document.getElementsByTagName("a")){
-                    if(z.href.match(/\?page=(\d+)/i) && z.className !== "next_page"){
-                        lastPage = z.innerHTML;
-                    };
-				};
-				Step_2();
-            }else{
-				Step_2();
-			};
-        }else{
-			if(!document.getElementById("LoadingContainer")){
-				document.querySelector("main header").after(LoadingContainer(true));
-			};
-            if(pagination) pagination.style.display = "none";
-            Step_3();
-        };
-    };
-    function Step_2(){
-        if(pagination){
-            AJAXGet("https://fetlife.com/users/" + user_id + "/friends?page=" + +loadPage, function(NextPage){
-                let LoadedHTML = document.createElement("div");
-                LoadedHTML.innerHTML = NextPage;
-				let card = LoadedHTML.getElementsByClassName("w-50-ns w-100 ph1");
-                for(let a of card){
-					let Username = a.querySelector("a.link.f5.fw7.secondary");
-					let UserID = Username.href.split("/users/")[1];
-					let Avatar = a.querySelector("img[src*='fetlife.com']").src;
-					let AGR = a.getElementsByClassName("f6 fw7 silver")[0].innerText;
-					let UserLoc = a.querySelector("div.f6.lh-copy.fw4.silver.nowrap.truncate").innerText;
-                    SearchFriendsList.push([Username.innerText, UserID, Avatar, AGR, UserLoc]);
-                };
-                +loadPage++;
-                if(+loadPage <= +lastPage){
-                    DoneLoading = false;
-                    Step_2();
-                }else{
-					DoneLoading = true;
-					SetSync("SearchedFriends", SearchFriendsList);
-                    Step_3();
-                };
-            });
-        };
-        if(pagination === false){
-            let card = document.getElementsByClassName("w-50-ns w-100 ph1");
-            for(let a of card){
-				let Username = a.getElementsByClassName("link span f5 fw7 secondary")[0];
-				let UserID = Username.href.split("/users/")[1];
-				let Avatar = a.querySelector("img[src*='fetlife.com']").src;
-				let AGR = a.getElementsByClassName("f6 fw7 silver")[0].innerText;
-				let UserLoc = a.querySelector("div.f6.lh-copy.fw4.silver.nowrap.truncate").innerText;
-				SearchFriendsList.push([Username.innerText, UserID, Avatar, AGR, UserLoc]);
-			};
-            SetSync("SearchedFriends", SearchFriendsList);
-			DoneLoading = true;
-            Step_3();
-		};
-    };
-    function Step_3(){
-		let x = SearchFriendsList;
-		let babyshark = search.querySelector("main > div > header > div > span > span");
-		let searched = "";
-		let Searching = document.querySelector("input[type='text'][name='SearchFriends']").value;
-		let escape = (Searching) => Searching.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
-		//let MatchThis = new RegExp("^" + Searching + "", "i");
-		let MatchThis = new RegExp("^" + Searching.split("*").map(escape).join(".*") + "","i");
-		if(document.querySelector("input[type='text'][name='SearchFriends']").value !== ""){
-            let Results = 0;
-            for(let i = 0;i<x.length;i++){
-                if(MatchThis.test(x[i][0])){
-					let Username = x[i][0];
-					let UserID = x[i][1];
-					let Avatar = x[i][2];
-					let AGR = x[i][3];
-					let UserLoc = x[i][4];
-                    searched += "<div class='w-50-ns w-100 ph1'><div class='w-100 bg-near-black br1 pointer bg-animate hover-bg-dark-primary'><div class='pv2 pr3 pl2 mb2 br1'><div class='flex items-center pa1'><div class='flex-auto mw-100'><div class='flex items-center'><div class='flex-none'><a class='dib fl mr3-ns mr2 link' href='/users/" + UserID + "'><img class='fl ipp br1' src='" + Avatar + "' width='70' height='70'></a></div><div class='relative flex-auto mw-100 mw-none-ns' style='max-height: 58px; top: -1px;'><div class='lh-copy truncate silver'><a class='link span f5 fw7 secondary' href='/users/" + UserID + "'>" + Username + "</a>&nbsp;<span class='f6 fw7 silver'>" + AGR + "</span></div><div class='f6 lh-copy fw4 silver nowrap truncate' onclick='openLink(event, '/users/" + UserID + "')'>" + UserLoc + "</div><div class='relative pd1 f6 fw4 lh-copy mid-gray nowrap truncate'><a class='mid-gray hover-silver link underline' data-open-modal-unfriend-" + UserID + "='' href='#'>unfriend</a></div></div></div></div><div class='flex'><div class='tr'></div></div></div></div></div></div>";
-                    Results++;
-                };
-            };
-			babyshark.innerHTML = "Showing " + Results + " result" + ((Results === 1) ? "" : "s");
-			document.getElementById("LoadingContainer").remove();
-			var HideUnfriend = true;
-        }else{
-			let DoMaths0 = (pagination) ? pagination.getElementsByClassName("current")[0].innerHTML : 1;
-            let DoMaths1 = (+(DoMaths0) * 20);
-            let DoMaths2 = DoMaths1 > FriendCount ? FriendCount : DoMaths1;
-			let DoMaths3 = DoMaths1 - 20;
-			//alert(DoMaths0 + " : " + DoMaths1 + " : " + DoMaths2 + " : " + DoMaths3 + "\nlet i = " + DoMaths3 + "; i < " + DoMaths2 + "; i++")
-			for(let i = DoMaths3; i < DoMaths2; i++){
-				let Username = x[i][0];
-				let UserID = x[i][1];
-				let Avatar = x[i][2];
-				let AGR = x[i][3];
-				let UserLoc = x[i][4];
-				searched += "<div class='w-50-ns w-100 ph1'><div class='w-100 bg-near-black br1 pointer bg-animate hover-bg-dark-primary'><div class='pv2 pr3 pl2 mb2 br1'><div class='flex items-center pa1'><div class='flex-auto mw-100'><div class='flex items-center'><div class='flex-none'><a class='dib fl mr3-ns mr2 link' href='/users/" + UserID + "'><img class='fl ipp br1' src='" + Avatar + "' width='70' height='70'></a></div><div class='relative flex-auto mw-100 mw-none-ns' style='max-height: 58px; top: -1px;'><div class='lh-copy truncate silver'><a class='link span f5 fw7 secondary' href='/users/" + UserID + "'>" + Username + "</a>&nbsp;<span class='f6 fw7 silver'>" + AGR + "</span></div><div class='f6 lh-copy fw4 silver nowrap truncate' onclick='openLink(event, '/users/" + UserID + "')'>" + UserLoc + "</div><div class='relative pd1 f6 fw4 lh-copy mid-gray nowrap truncate'><a class='mid-gray hover-silver link underline' data-open-modal-unfriend-" + UserID + "='' href='#'>unfriend</a></div></div></div></div><div class='flex'><div class='tr'></div></div></div></div></div></div>";
-			};
-            babyshark.innerHTML = "Showing " + (DoMaths3 + 1) + " - " + DoMaths2 + " of " + FriendCount;
-			document.getElementById("LoadingContainer").remove();
-			var HideUnfriend = false;
-            if(pagination) pagination.style.display = "block";
-        };
-        if(searched !== "" && DoneLoading === true){
-            document.querySelector("main > div.flex").innerHTML = searched;
-		}else if(searched === "" && DoneLoading === true){
-			if(document.getElementById("LoadingContainer") !== null){
-				document.getElementById("LoadingContainer").remove();
-			};
-            document.querySelector("main > div.flex").innerHTML = "No results found for \"" + document.querySelector("input[type='text'][name='SearchFriends']").value + "\"";
-		}else if(DoneLoading === false){
-			document.querySelector("main header").after(LoadingContainer(true));
-			document.querySelector("main > div.flex").innerHTML = "";
-            if(pagination) pagination.style.display = "none";
-        };
-        let unfriend = document.getElementsByTagName("a");
-        for(let a of unfriend){
-            if(a.innerHTML === "unfriend"){
-                if(HideUnfriend){
-					a.href = "javascript:void(0);";
-                    a.addEventListener("click", function(){
-						let Username = this.parentNode.parentNode.getElementsByClassName("link span f5 fw7 secondary")[0];
-						let NewForm = document.getElementById("NewForm");
-						if(!NewForm){
-							let form = document.getElementsByClassName("simple_form unfriend")[0].cloneNode(true);
-							NewForm = form;
-							NewForm.id = "NewForm";
-							NewForm.action = "/users/" + user_id + "/friends/" + Username.href.split("/users/")[1];
-							AJAXGet(Username.href).then(function(a){
-								NewForm.querySelector("[name='authenticity_token']").value = a;
-							}, onError);
-							NewForm.querySelector("div[data-id^='unfriend-']").setAttribute("data-id", Username.href.split("/users/")[1]);
-							NewForm.querySelector("p.ma0.text.lh-copy").innerHTML = "Are you sure you want to remove " + Username.innerHTML + " from your list of friends?";
-							NewForm.querySelector("button[data-default-caption='Unfriend'] div.span").innerHTML = "Unfriend " + Username.innerHTML;
-							NewForm.querySelector("a.dib[data-method='get']").href = "javascript:void(0);";
-							NewForm.querySelector("a.dib[data-method='get']").addEventListener("click", function(){
-								NewForm.querySelector("div[data-id]").className = "fixed top-0 right-0 bottom-0 left-0 z-9999 pa3 bg-black-80 tc overflow-auto fade-out dn";
-							});
-							NewForm.querySelector("div[data-modal-x-button]").addEventListener("click", function(){
-								NewForm.querySelector("div[data-id]").className = "fixed top-0 right-0 bottom-0 left-0 z-9999 pa3 bg-black-80 tc overflow-auto fade-out dn";
-							});
-							document.body.append(NewForm);
-							NewForm.querySelector("div[data-id]").className = "fixed top-0 right-0 bottom-0 left-0 z-9999 pa3 bg-black-80 tc overflow-auto fade-in";
-						}else{
-							NewForm.action = "/users/" + user_id + "/friends/" + Username.href.split("/users/")[1];
-							AJAXGet(Username.href).then(function(a){
-								NewForm.querySelector("[name='authenticity_token']").value = a;
-							}, onError);
-							NewForm.querySelector("div[data-id]").setAttribute("data-id", Username.href.split("/users/")[1]);
-							NewForm.querySelector("p.ma0.text.lh-copy").innerHTML = "Are you sure you want to remove " + Username.innerHTML + " from your list of friends?";
-							NewForm.querySelector("button[data-default-caption='Unfriend'] div.span").innerHTML = "Unfriend " + Username.innerHTML;
-							NewForm.querySelector("a.dib[data-method='get']").href = "javascript:void(0);";
-							NewForm.querySelector("a.dib[data-method='get']").addEventListener("click", function(){
-								NewForm.querySelector("div[data-id]").className = "fixed top-0 right-0 bottom-0 left-0 z-9999 pa3 bg-black-80 tc overflow-auto fade-out dn";
-							});
-							NewForm.querySelector("div[data-modal-x-button]").addEventListener("click", function(){
-								NewForm.querySelector("div[data-id]").className = "fixed top-0 right-0 bottom-0 left-0 z-9999 pa3 bg-black-80 tc overflow-auto fade-out dn";
-							});
-							NewForm.querySelector("div[data-id]").className = "fixed top-0 right-0 bottom-0 left-0 z-9999 pa3 bg-black-80 tc overflow-auto fade-in";
-						};
-                    });
-                }else{
-                    a.href = "javascript:void(0);";
-                    a.addEventListener("click", function(){
-						let Username = this.parentNode.parentNode.getElementsByClassName("link span f5 fw7 secondary")[0];
-                        document.querySelector("div[data-id='unfriend-" + Username.href.split("/users/")[1] + "']").className = "fixed top-0 right-0 bottom-0 left-0 z-9999 pa3 bg-black-80 tc overflow-auto fade-in";
-                    });
-                };
-            };
-		};
-		if(getTypes(cute.CheckboxName).MassMessageFriends){
-			//This loads the new "MassMessageFriendsList" each load
-			//That way the list is always current if user decides to add/remove peeps
-			//If this wasn't here, it would always load the old list that was loaded when the page first loaded.
-            let asdf = new Promise(async function(resolve, reject){
-                if(isExtension){
-                    chrome.storage.sync.get(null, resolve);
-                }else{
-                    let rawr = {};
-                    for(let key of await GM.listValues()){
-                        rawr[key] = JSON.parse(await GM.getValue(key));
-                    };
-                    resolve(rawr);
-                };
-            });
-			asdf.then(function(b){
-				MassMessageFriends(b, false); //Second value fixes a bug with
-			}, onError);
-        };
-	};
-	let pagination = document.getElementsByClassName("pagination")[0] ? document.getElementsByClassName("pagination")[0] : false;
-    let links;
-    let currentPage;
-    let loadPage;
-    let lastPage;
-	let SearchFriendsList = new Array();
-    let AlreadySearched = false;
-    let DoneLoading = false;
-    let FriendCount = document.getElementsByClassName("dib ph1 ml2 f7 fw4 text br1 bg-mid-gray")[0].innerHTML;
-    let OldFriendCount = (cute.SearchFriendsListNumber) ? cute.SearchFriendsListNumber : 0;
-	let search = document.getElementsByTagName("main")[0];
-	// Hide Fetlifes Search Friends
-	document.querySelector("header > div > a[href='#0']").style.display = "none";
-
-	search.getElementsByTagName("header")[0].innerHTML += "<div id='SearchDIV' style='margin-left: 10px;'><input type='text' name='SearchFriends' placeholder='Type to search friends' style='font-size: 0.875rem;' class='relative z-5 w105 w217-l pv1 ph2 f6 lh-copy moon-gray bg-dark-gray bn br0 ph-dark input-reset' /></div>";
-	GetWithMyFriends();
-	document.querySelector("input[type='text'][name='SearchFriends']").addEventListener("keyup", Step_1);
 };
 //=======================================================
 //
@@ -2127,16 +1854,21 @@ function AJAXGet(url, NextPage, auth){
 };
 function AJAXPost(url, options, auth){
 	return new Promise(function(resolve, reject){
+		/*
+		NOTES:  This commented area is old and only kept if Fetlife updates things again.
 		let params = typeof options == "string" ? options : Object.keys(options).map(
 			function(k){ return encodeURIComponent(k) + '=' + encodeURIComponent(options[k]) }
 		).join("&");
+		*/
+		let params = JSON.stringify(options);
 		let ajax = new XMLHttpRequest();
 		ajax.onload = function(){
 			resolve(this.responseText);
 		};
 		ajax.onerror = reject;
 		ajax.open("post", url);
-		ajax.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		ajax.setRequestHeader('Accept', 'text/html');
+		ajax.setRequestHeader('Content-Type', 'application/json;charset=utf-8');
 		auth && ajax.setRequestHeader("X-CSRF-Token", auth);
 		ajax.send(params);
 	});
@@ -2175,7 +1907,7 @@ function FLESettings(a){
 			var SettingsIcon = "<svg xmlns='http://www.w3.org/2000/svg' x='0px' y='0px' width='16' height='16' viewBox='0 0 24 24'><path d='M 9.6679688 2 L 9.1757812 4.5234375 C 8.3550224 4.8338012 7.5961042 5.2674041 6.9296875 5.8144531 L 4.5058594 4.9785156 L 2.1738281 9.0214844 L 4.1132812 10.707031 C 4.0445153 11.128986 4 11.558619 4 12 C 4 12.441381 4.0445153 12.871014 4.1132812 13.292969 L 2.1738281 14.978516 L 4.5058594 19.021484 L 6.9296875 18.185547 C 7.5961042 18.732596 8.3550224 19.166199 9.1757812 19.476562 L 9.6679688 22 L 14.332031 22 L 14.824219 19.476562 C 15.644978 19.166199 16.403896 18.732596 17.070312 18.185547 L 19.494141 19.021484 L 21.826172 14.978516 L 19.886719 13.292969 C 19.955485 12.871014 20 12.441381 20 12 C 20 11.558619 19.955485 11.128986 19.886719 10.707031 L 21.826172 9.0214844 L 19.494141 4.9785156 L 17.070312 5.8144531 C 16.403896 5.2674041 15.644978 4.8338012 14.824219 4.5234375 L 14.332031 2 L 9.6679688 2 z M 12 8 C 14.209 8 16 9.791 16 12 C 16 14.209 14.209 16 12 16 C 9.791 16 8 14.209 8 12 C 8 9.791 9.791 8 12 8 z'></path></svg>";
 			var div = document.getElementsByClassName("fl-menu")[0];
 			var settings = document.createElement("div");
-            settings.id = "FLE-Settings";
+            settings.id = "FLE-Settings-fl-menu";
 			settings.className = "fl-menu__separator fl-menu__content-actions";
 			settings.innerHTML = "<div id='ExtraLinks' class='fl-menu__buttons-wrapper'><a id='AddOnSettings' class='fl-menu__button' style='display: block !important; float: relative; width: 100%' href='javascript:void(0);' title='Open FLE Settings'>" + SettingsIcon + "FLE Settings <span style='float: right;'>(v" + GM.info.script.version + ")</span></a></div>";
             var settings_list = document.createElement("div");
@@ -2351,9 +2083,6 @@ function OpenSettings(Restore){
         Settings["Miscellaneous"] = [
             ["PrettyTextareas", "Pretty Textareas", "Changes all the white textareas/input boxes to match the rest of FetLife."],
             ["MassMessageFriends", "Mass Message Friends", "Adds a \"Mass Message\" tab when viewing your friends list."],
-            //Search Friends Notes:
-            //    Code still needs updating to new format
-            ["SearchFriends", "Search your Friend List", "Adds a input field when viewing your friend list so you can quickly search through your friends.  Helpful if you are using Mass Message Friends!"],
             ["OTHER", "Restore default settings", "<div class='buttonbox'><input type='button' value='Reset!' name='RestoreSettings' /></div>"]
         ];
         let EverySetting = "";
@@ -2495,9 +2224,6 @@ function LoadSettings(boobs){
 		SaveYourPics();
 	};
     //Miscelaneous
-    if(FN.SearchFriends && location.href.match("users/" + user_id + "/friends")){
-        SearchFriends(boobs);
-    };
     if(FN.MassMessageFriends){
         MassMessageFriends(boobs, true); //second value fixes a bug if SearchFriends is active "SearchBreakUnfriendFix"
     };
@@ -2633,7 +2359,11 @@ for(a of Linkz){
 		var user_id = a.href.split("users/")[1].split("?")[0];
 		var user_name = a.innerText;
 		var navNickname = false;
-    };
+    }else if(a.className === "fl-nav__nickname"){
+		var user_id = a.href.split("users/")[1].split("?")[0];
+		var user_name = a.innerText;
+		var navNickname = true;
+	}
 };
 GetSync.then(FLESettings, onError);
 //=======================================================
