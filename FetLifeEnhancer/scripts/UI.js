@@ -9,19 +9,12 @@ function UI(boobs){
     if(FN.AddToGoogleCalendar && location.href.match("/events/([0-9]+)$")){
         GoogleCalendar();
     };
-    if(FN.QuickEditAboutMe){
+    if(FN.QuickEditAboutMe && !/\/settings\//i.test(location.href)){
         QEAboutMe(FN.AddFormatButtons, boobs);
     };
     if(FN.AddFormatButtons){
-        RunFormatButtons(document.querySelector("textarea#post_body")); //Journal Entry
-        RunFormatButtons(document.querySelector("textarea#about_content")); //About Me
-        RunFormatButtons(document.querySelector("textarea[name='group_post[body]']")); //Group Post
-        RunFormatButtons(document.querySelector("div#new_comment textarea#body")); //Group Post Comment
-        RunFormatButtons(document.querySelector("textarea#event_description")); //Event Description
-        RunFormatButtons(document.querySelector("textarea#wall_post_body")); //Wall Post
-        RunFormatButtons(document.querySelector("textarea#generic_comment_body")); //Picture Comment
-        RunFormatButtons(document.querySelector("div.input-group > textarea#body[name='body']")); // New Message
-        RunFormatButtons(document.querySelector("textarea#new-message-textarea")); //Message Reply
+        RunFormatButtons(document.querySelector("textarea#wall_post_body")); // Wall Post
+        RunFormatButtons(document.querySelector("div.input-group > textarea.form-control")); // Picture Comment and New Message and Message Reply
     };
     if(FN.MentionLinks && !/\/settings\//i.test(location.href)){
         MentionLinks();
@@ -403,13 +396,11 @@ function QEAboutMe(Format, Karen){
             let content = document.getElementById("EditAboutMe");
             if(content.contentDocument.querySelector("[name='about[content]']")){
                 let OldAboutMe = content.contentDocument.querySelector("[name='about[content]']").value;
-                document.getElementById("QEAM").innerHTML = "<fieldset><textarea class='text' id='AboutMeInfo' style='width: 100%;'>" + OldAboutMe + "</textarea><a href='javascript:void(0);' id='SaveAboutMeInfo' style='background-color: #a00; font-size: 1.2em; padding: 5px 15px; margin-top: 7px; text-decoration: none; float: right;'>Update</a></fieldset>";
+                document.getElementById("QEAM").innerHTML = "<fieldset><textarea class='text' id='AboutMeInfo' style='background: #333; color: #ccc; width: 100%;'>" + OldAboutMe + "</textarea><a href='javascript:void(0);' id='SaveAboutMeInfo' style='background-color: #a00; font-size: 1.2em; padding: 5px 15px; margin-top: 7px; text-decoration: none; float: right;'>Update</a></fieldset>";
                 document.getElementById("SaveAboutMeInfo").addEventListener("click", function(){
                     SaveAboutMe(content);
                 });
-                if(Format){
-                    RunFormatButtons(document.querySelector("textarea#AboutMeInfo"));
-                };
+                RunFormatButtons(document.querySelector("textarea#AboutMeInfo"));
             }else{
                 StillLoading(LoadAboutMe);
             };
@@ -426,7 +417,7 @@ function QEAboutMe(Format, Karen){
         };
         function ReloadAboutMe(){
             let a = document.getElementById("EditAboutMe");
-            if(a.contentDocument.getElementsByClassName("pv2 ph3 tc f5 lh-title light-gray bg-green")[0]){
+            if(a.contentDocument.querySelector(".bg-green-500")){
                 window.location.reload(true);
             }else{
                 StillLoading(ReloadAboutMe);
@@ -585,14 +576,14 @@ function NotificationBox(Floating){
                     if(requests.innerHTML.match("No Requests Pending!")){
                         FriendReqs += "<div style='height: 40px; margin: auto; width: 40%;'>No Requests Pending!</div>";
                     }else{
-                        let users = requests.querySelectorAll("a[class='link span f5 fw7 secondary']");
+                        let users = requests.querySelectorAll("a[class='link f5 fw7 secondary mr1']");
                         for(let x of users){
                             let top_parent = x.parentNode.parentNode.parentNode.parentNode.parentNode;
                             let user_img = top_parent.querySelector("img").src;
                             let user_url = x.href;
                             let user_name = x.innerHTML;
                             let user_age = x.parentNode.querySelector("span").innerHTML;
-                            let user_loc = top_parent.querySelector("div[class='f6 lh-copy fw4 silver nowrap truncate']").innerHTML;
+                            let user_loc = top_parent.querySelector("div[class='f6 lh-copy fw4 gray-300 nowrap truncate']").innerHTML;
                             let accept_auth = document.querySelector("meta[name='csrf-token']").getAttribute("content");
                             let accept_action = null;
                             let ignore_auth = document.querySelector("meta[name='csrf-token']").getAttribute("content");
@@ -869,7 +860,7 @@ function QuickReply(pacifier, FormatButtons){
 
 function MassArchiveDeleteMessages(){
     function PlaceCheckbox(){
-        let AllMessages = document.getElementsByClassName("relative flex items-center w-100 pa3 hover-bg-primary bg-animate pointer bb b--primary hover-show bg-transparent")
+        let AllMessages = document.getElementsByClassName("relative flex items-center w-100 pa3 hover-bg-gray-800 bg-animate pointer bb b-gray-800 hover-show bg-transparent")
         for(let a of AllMessages){
             if(!a.querySelector("input[name='CheckConvo']")){
                 let URL = a.querySelector("a[href*='/conversations']").href.split("#newest_message")[0];
@@ -896,6 +887,7 @@ function MassArchiveDeleteMessages(){
     function AUD(){
         let Messages = document.querySelectorAll("input[name='CheckConvo']:checked");
         let completed = document.createElement("div");
+        let CompletedClass = "pv2 ph3 tc f5 lh-title light-gray gray=100 bg-green-600";
         completed.id = "Completed";
         completed.className = "pv2 ph3 tc f5 lh-title light-gray bg-gray";
         completed.innerHTML = "Loading...Please wait";
@@ -913,10 +905,9 @@ function MassArchiveDeleteMessages(){
                     AJAXPost(URL + "/archive", {[name]: auth}).then(function(resolve){
                         a.parentNode.parentNode.remove();
                         if(Messages.lengh == null){
-                            document.getElementById("Completed").className = "pv2 ph3 tc f5 lh-title light-gray bg-green";
+                            document.getElementById("Completed").className = CompletedClass;
                             document.getElementById("Completed").innerHTML = Messages.length + " conversations archived!";
                         };
-                        alert(resolve);
                     }, onError);
                 };
             };
@@ -929,7 +920,7 @@ function MassArchiveDeleteMessages(){
                     AJAXPost(URL + "/unarchive", {[name]: auth}).then(function(resolve){
                         a.parentNode.parentNode.remove();
                         if(Messages.lengh == null){
-                            document.getElementById("Completed").className = "pv2 ph3 tc f5 lh-title light-gray bg-green";
+                            document.getElementById("Completed").className = CompletedClass;
                             document.getElementById("Completed").innerHTML = Messages.length + " conversations unarchived!";
                         };
                     });
@@ -939,13 +930,13 @@ function MassArchiveDeleteMessages(){
                 if(confirm("Are you sure you want to delete " + Messages.length + " conversations?")){
                     if(!document.getElementById("Completed")) h6.parentNode.after(completed);
                     for(let a of Messages){
-                        let URL = a.getAttribute("conversation-url");
+                        let URL = a.getAttribute("conversation-url").split("/conversations/")[1];
                         let auth = document.querySelector("meta[name='csrf-token']").getAttribute("content");
                         let name = document.querySelector("meta[name='csrf-param']").getAttribute("content");
-                        AJAXPost(URL, {"utf8": "✓", "_method": "delete", [name]: auth}).then(function(resolve){
+                        AJAXPost(main_url + "/chat/privacy_rules/9780960", {"conversation_id": URL, "utf8": "✓", "_method": "delete", [name]: auth}).then(function(resolve){
                             a.parentNode.parentNode.remove();
                             if(Messages.lengh == null){
-                                document.getElementById("Completed").className = "pv2 ph3 tc f5 lh-title light-gray bg-green";
+                                document.getElementById("Completed").className = CompletedClass;
                                 document.getElementById("Completed").innerHTML = Messages.length + " conversations deleted. Hasta la vista, baby!";
                             };
                         }, onError);
@@ -959,23 +950,23 @@ function MassArchiveDeleteMessages(){
         document.querySelector("div > main").scrollTo({top: 0, left: 0, behavior: "smooth"});
     };
     let h6 = (window.MobileCheck() === false) ? document.querySelector("div > main > header > h6") : document.querySelector("div > main > header > div");
-    let Archive = "<button name='ArchiveAll' style='margin: 0px 3px 0px 3px;' class='text pv2 ph3 f5 br1 pointer bg-animate link bg-dark-secondary hover-secondary-light bn'><span class='relative pd1'><span class='fill-moon-gray pen'><svg xmlns='http://www.w3.org/2000/svg' width='11px' height='11px' viewBox='0 0 16 16' class='mr1 pen'><path d='M15.5555556,1.95555556 L14.3111111,0.444444444 C14.1333333,0.177777778 13.7777778,0 13.3333333,0 L2.66666667,0 C2.22222222,0 1.86666667,0.177777778 1.6,0.444444444 L0.444444444,1.95555556 C0.177777778,2.31111111 0,2.66666667 0,3.11111111 L0,14.2222222 C0,15.2 0.8,16 1.77777778,16 L14.2222222,16 C15.2,16 16,15.2 16,14.2222222 L16,3.11111111 C16,2.66666667 15.8222222,2.31111111 15.5555556,1.95555556 Z M8,12.8888889 L3.11111111,8 L6.22222222,8 L6.22222222,6.22222222 L9.77777778,6.22222222 L9.77777778,8 L12.8888889,8 L8,12.8888889 Z M1.86666667,1.77777778 L2.57777778,0.888888889 L13.2444444,0.888888889 L14.0444444,1.77777778 L1.86666667,1.77777778 Z'></path></svg></span>Archive</span></button>";
-    let Unarchive = "<button name='UnarchiveAll' style='margin: 0px 3px 0px 3px;' class='text pv2 ph3 f5 br1 pointer bg-animate link bg-dark-secondary hover-secondary-light bn'><span class='relative pd1'><span class='fill-moon-gray pen'><svg xmlns='http://www.w3.org/2000/svg' width='11px' height='11px' viewBox='0 0 16 16' class='mr1 pen'><path d='M15.5555556,1.95555556 L14.3111111,0.444444444 C14.1333333,0.177777778 13.7777778,0 13.3333333,0 L2.66666667,0 C2.22222222,0 1.86666667,0.177777778 1.6,0.444444444 L0.444444444,1.95555556 C0.177777778,2.31111111 0,2.66666667 0,3.11111111 L0,14.2222222 C0,15.2 0.8,16 1.77777778,16 L14.2222222,16 C15.2,16 16,15.2 16,14.2222222 L16,3.11111111 C16,2.66666667 15.8222222,2.31111111 15.5555556,1.95555556 Z M8,12.8888889 L3.11111111,8 L6.22222222,8 L6.22222222,6.22222222 L9.77777778,6.22222222 L9.77777778,8 L12.8888889,8 L8,12.8888889 Z M1.86666667,1.77777778 L2.57777778,0.888888889 L13.2444444,0.888888889 L14.0444444,1.77777778 L1.86666667,1.77777778 Z'></path></svg></span>Unarchive</span></button>";
-    let Delete = "<button name='DeleteAll' style='margin: 0px 3px 0px 3px;' class='text pv2 ph3 f5 br1 pointer bg-animate link bg-dark-secondary hover-secondary-light bn'><span class='relative pd1'><span class='fill-moon-gray pen'><svg xmlns='http://www.w3.org/2000/svg' width='11px' height='11px' viewBox='0 0 16 16' class='mr1 pen'><path d='M7,0 C5.9,0 5,0.9 5,2 L3,2 C1.9,2 1,2.9 1,4 L15,4 C15,2.9 14.1,2 13,2 L11,2 C11,0.9 10.1,0 9,0 L7,0 Z M3,6 L3,15.62 C3,15.84 3.16,16 3.38,16 L12.64,16 C12.86,16 13.02,15.84 13.02,15.62 L13.02,6 L11.02,6 L11.02,13 C11.02,13.56 10.58,14 10.02,14 C9.46,14 9.02,13.56 9.02,13 L9.02,6 L7.02,6 L7.02,13 C7.02,13.56 6.58,14 6.02,14 C5.46,14 5.02,13.56 5.02,13 L5.02,6 L3.02,6 L3,6 Z'></path></svg></span>Delete</span></button>";
+    let Archive = "<button name='ArchiveAll' style='margin: 0px 3px 0px 3px; background-color: #900 !important;' class='text pv2 ph3 f5 br1 pointer bg-animate link bg-dark-secondary hover-secondary-light bn'><span class='relative pd1'><span class='fill-moon-gray pen'><svg xmlns='http://www.w3.org/2000/svg' width='11px' height='11px' viewBox='0 0 16 16' class='mr1 pen'><path d='M15.5555556,1.95555556 L14.3111111,0.444444444 C14.1333333,0.177777778 13.7777778,0 13.3333333,0 L2.66666667,0 C2.22222222,0 1.86666667,0.177777778 1.6,0.444444444 L0.444444444,1.95555556 C0.177777778,2.31111111 0,2.66666667 0,3.11111111 L0,14.2222222 C0,15.2 0.8,16 1.77777778,16 L14.2222222,16 C15.2,16 16,15.2 16,14.2222222 L16,3.11111111 C16,2.66666667 15.8222222,2.31111111 15.5555556,1.95555556 Z M8,12.8888889 L3.11111111,8 L6.22222222,8 L6.22222222,6.22222222 L9.77777778,6.22222222 L9.77777778,8 L12.8888889,8 L8,12.8888889 Z M1.86666667,1.77777778 L2.57777778,0.888888889 L13.2444444,0.888888889 L14.0444444,1.77777778 L1.86666667,1.77777778 Z'></path></svg></span> Archive</span></button>";
+    let Unarchive = "<button name='UnarchiveAll' style='margin: 0px 3px 0px 3px; background-color: #900 !important;' class='text pv2 ph3 f5 br1 pointer bg-animate link bg-dark-secondary hover-secondary-light bn'><span class='relative pd1'><span class='fill-moon-gray pen'><svg xmlns='http://www.w3.org/2000/svg' width='11px' height='11px' viewBox='0 0 16 16' class='mr1 pen'><path d='M15.5555556,1.95555556 L14.3111111,0.444444444 C14.1333333,0.177777778 13.7777778,0 13.3333333,0 L2.66666667,0 C2.22222222,0 1.86666667,0.177777778 1.6,0.444444444 L0.444444444,1.95555556 C0.177777778,2.31111111 0,2.66666667 0,3.11111111 L0,14.2222222 C0,15.2 0.8,16 1.77777778,16 L14.2222222,16 C15.2,16 16,15.2 16,14.2222222 L16,3.11111111 C16,2.66666667 15.8222222,2.31111111 15.5555556,1.95555556 Z M8,12.8888889 L3.11111111,8 L6.22222222,8 L6.22222222,6.22222222 L9.77777778,6.22222222 L9.77777778,8 L12.8888889,8 L8,12.8888889 Z M1.86666667,1.77777778 L2.57777778,0.888888889 L13.2444444,0.888888889 L14.0444444,1.77777778 L1.86666667,1.77777778 Z'></path></svg></span> Unarchive</span></button>";
+    let Delete = "<button name='DeleteAll' style='margin: 0px 3px 0px 3px; background-color: #900 !important;' class='text pv2 ph3 f5 br1 pointer bg-animate link bg-dark-secondary hover-secondary-light bn'><span class='relative pd1'><span class='fill-moon-gray pen'><svg xmlns='http://www.w3.org/2000/svg' width='11px' height='11px' viewBox='0 0 16 16' class='mr1 pen'><path d='M7,0 C5.9,0 5,0.9 5,2 L3,2 C1.9,2 1,2.9 1,4 L15,4 C15,2.9 14.1,2 13,2 L11,2 C11,0.9 10.1,0 9,0 L7,0 Z M3,6 L3,15.62 C3,15.84 3.16,16 3.38,16 L12.64,16 C12.86,16 13.02,15.84 13.02,15.62 L13.02,6 L11.02,6 L11.02,13 C11.02,13.56 10.58,14 10.02,14 C9.46,14 9.02,13.56 9.02,13 L9.02,6 L7.02,6 L7.02,13 C7.02,13.56 6.58,14 6.02,14 C5.46,14 5.02,13.56 5.02,13 L5.02,6 L3.02,6 L3,6 Z'></path></svg></span> Delete</span></button>";
     if(window.MobileCheck() === false && !document.querySelector(".mv0.f4.lh-title.text") && !location.href.match("QuickReplySettings")){
         if(location.href.match("/inbox/archive")){
             h6.innerHTML += "<span style='right: 10%; position: fixed; z-index: 999;' id='ArchButtons'>" + Unarchive + Delete + "<span>";
             document.getElementsByName("UnarchiveAll")[0].onclick = AUD;
-            document.getElementsByName("DeleteAll")[0].onclick = AUD;
+            // document.getElementsByName("DeleteAll")[0].onclick = AUD;
         }else if(location.href.match("/inbox/all")){
             h6.innerHTML += "<span style='right: 10%; position: fixed; z-index: 999;' id='ArchButtons'>" + Archive + Unarchive + Delete + "<span>";
             document.getElementsByName("ArchiveAll")[0].onclick = AUD;
             document.getElementsByName("UnarchiveAll")[0].onclick = AUD;
-            document.getElementsByName("DeleteAll")[0].onclick = AUD;
-        }else if(location.href.match("/inbox")){
+            // document.getElementsByName("DeleteAll")[0].onclick = AUD;
+        }else if(location.href.match(/\/inbox|\?filter\=inbox/i)){
              h6.innerHTML += "<span style='right: 10%; position: fixed; z-index: 999;' id='ArchButtons'>" + Archive + Delete + "<span>";
              document.getElementsByName("ArchiveAll")[0].onclick = AUD;
-             document.getElementsByName("DeleteAll")[0].onclick = AUD;
+             // document.getElementsByName("DeleteAll")[0].onclick = AUD;
         };
         document.querySelector("div > main").addEventListener("scroll", PlaceCheckbox);
         PlaceCheckbox();

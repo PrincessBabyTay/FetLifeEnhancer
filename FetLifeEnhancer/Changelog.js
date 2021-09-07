@@ -2,17 +2,17 @@ let Changes = new Array();
 Changes["2.4.6"] = [
     "Fixed a bug with the \"FLE Settings\" link not showing up in the sidebar.",
     "Fixed a bug with \"Mass Message Events\" that caused it not to work.",
+    "Updated \"Quick Edit About Me\".",
+    "Updated \"Add Format Buttons\".",
+    "Updated \"Mass Archive/Delete Messages\".  Archiving works, delete still doesn't.",
+    "Updated \"Facebook Style Friend Requests\".",
     "Removed \"Search Friends\".  No longer needed due to FetLife implementing this feature themselves.",
-    // To do:
-    "Updated \"Mass Archive/Delete Messages\".  It now works again!",
-    "Updated \"Facebook Style Friend Requests\"."
 ];
 Changes["2.4.5"] = [
     "Fixed a bug with the \"FLE Settings\" link not showing up in the sidebar.",
     "Fixed a bug with \"Create Guest List\" that caused it not to work"
 ];
 Changes["2.4.4"] = [
-    // Mass Archive/Delete Messages AJAX doesn't work.
     // Update Locations Script (Might not be worth it, might not work as wanted)
     // Update Multiple Image Upload
     "Fixed a bug with \"Mass Message Events\" that caused it not to work.",

@@ -188,6 +188,42 @@ function MassMessageEvent(item){
 };
 
 function MassMessageFriends(boobs, SearchBreakUnfriendFix){
+	function PlaceMassMessageLink(){
+		if(location.href.match(/(\d+)\/friends/i)){
+			let pics = document.getElementsByTagName("div");
+			let card = document.getElementsByClassName("w-50-m w-100 ph1");
+			for(let aa of card){
+				let click_event_element = aa.getElementsByClassName("w-100 br1 pointer bg-animate hover-bg-gray-950 bg-gray-900")[0]
+				let click_event = click_event_element.getAttribute("onclick");
+				aa.querySelector("div.lh-copy.gray-300.nowrap.truncate").setAttribute("onclick", click_event);
+				click_event_element.removeAttribute("onclick");
+				if(SearchBreakUnfriendFix) aa.innerHTML = aa.innerHTML;
+			};
+			for(let a of pics){
+				if(a.className == "f6 fw4 lh-copy gray-500 nowrap truncate" && !a.querySelector("a[name='MassMessageLink']")){
+					let a_new = document.createElement("a");
+					a_new.name = "MassMessageLink";
+					a_new.setAttribute("mass-message", "false");
+					a_new.setAttribute("mass-message-user", a.parentNode.parentNode.querySelector("a.link.f5.fw7.secondary").innerHTML);
+					a_new.className = "mid-gray hover-silver link underline";
+					a_new.style.float = "right";
+					a_new.innerHTML = "add to mass message";
+					a.append(a_new);
+					//a.parentNode.innerHTML += "<a name='MassMessageLink' mass-message='false' mass-message-user='" + a.parentNode.parentNode.getElementsByClassName("link span f5 fw7 secondary")[0].innerHTML + "' href='javascript:void(0);' class='mid-gray hover-silver link underline' style='float: right;'>add to mass message</a>";
+					// if(SearchBreakUnfriendFix === true){
+					// 	a.href = "javascript:void(0);";
+					// 	a.addEventListener("click", function(){
+					// 		let Username = this.parentNode.parentNode.getElementsByClassName("link span f5 fw7 secondary")[0];
+					// 		document.querySelector("div[data-id='unfriend-" + Username.href.split("/users/")[1] + "']").className = "fixed top-0 right-0 bottom-0 left-0 z-9999 pa3 bg-black-80 tc overflow-auto fade-in";
+					// 	});
+					// };
+				};
+			};
+			for(let a of document.querySelectorAll("a[name='MassMessageLink']")){
+				a.addEventListener("click", MassMessageFriend_A);
+			};
+		};
+	};
 	function LoadList(){
 		if(boobs.MassMessageFriendsList){
 			for(let a of boobs.MassMessageFriendsList){
@@ -196,9 +232,9 @@ function MassMessageFriends(boobs, SearchBreakUnfriendFix){
 			document.getElementById("MassFriendsNumber").innerHTML = boobs.MassMessageFriendsList.length;
 			for(let c of boobs.MassMessageFriendsList){
 				if(location.href.match("MassMessageFriends")){
-					document.getElementById("MassFriendsNumber").className = "dib ph1 ml2 f7 fw4 text br1 bg-mid-gray";
+					document.getElementById("MassFriendsNumber").className = "dib ph1 ml2 f7 fw4 br1 text bg-gray-500 theme-gray-950";
 				}else{
-					document.getElementById("MassFriendsNumber").className = "dib ph1 ml2 f7 fw4 silver br1 bg-dark-gray";
+					document.getElementById("MassFriendsNumber").className = "dib ph1 ml2 f7 fw4 br1 gray-300 bg-gray-700";
 				};
 				if(document.querySelector("[mass-message-user='" + c[1] + "']")){
 					let b = document.querySelector("[mass-message-user='" + c[1] + "']");
@@ -210,7 +246,7 @@ function MassMessageFriends(boobs, SearchBreakUnfriendFix){
 	};
 	function MassMessageFriend_A(){
 		if(this.getAttribute("mass-message") == "false"){
-			let parent_a = this.parentNode.parentNode.getElementsByClassName("link span f5 fw7 secondary")[0];
+			let parent_a = this.parentNode.parentNode.getElementsByClassName("link f5 fw7 secondary mr1")[0];
 			let Username = parent_a.innerHTML;
 			let ID = parent_a.href.split("/users/")[1];
 			this.innerHTML = "remove from mass message";
@@ -219,7 +255,7 @@ function MassMessageFriends(boobs, SearchBreakUnfriendFix){
 			document.getElementById("MassFriendsNumber").innerHTML = MassFriends.length;
 			document.getElementById("MassFriendsNumber").className = "dib ph1 ml2 f7 fw4 silver br1 bg-dark-gray";
 		}else if(this.getAttribute("mass-message") == "true"){
-			let parent_a = this.parentNode.parentNode.getElementsByClassName("link span f5 fw7 secondary")[0];
+			let parent_a = this.parentNode.parentNode.getElementsByClassName("link f5 fw7 secondary mr1")[0];
 			let Username = parent_a.innerHTML;
 			let ID = parent_a.href.split("/users/")[1];
 			this.innerHTML = "add to mass message";
@@ -270,16 +306,16 @@ function MassMessageFriends(boobs, SearchBreakUnfriendFix){
 	};
 	function StartMassMessageFriends(Format){
 		document.title = "Mass Message Friends - " + user_name + " | FetLife";
-		let stupid = document.getElementsByClassName("dib link f6 lh-title bg-mid-primary br1 br--top text bt b--dark-secondary bw1")[0];
-		stupid.className = "dib link f6 lh-title gray hover-silver";
-		stupid.firstChild.className = "pv2 ph3 br bl b--transparent";
-		stupid.getElementsByTagName("span")[0].className = "dib ph1 ml2 f7 fw4 silver br1 bg-dark-gray";
+		let RemoveActiveTab = document.getElementsByClassName("dib link f6 lh-title bg-gray-850 br1 br--top text bt b-red-600 theme-b-red-500 bw1")[0];
+		RemoveActiveTab.className = "dib link f6 lh-title gray hover-gray-300";
+		RemoveActiveTab.firstChild.className = "pv2 ph3 br bl b-transparent";
+		RemoveActiveTab.getElementsByTagName("span")[0].className = "dib ph1 ml2 f7 fw4 br1 gray-300 bg-gray-700";
 		let z = document.querySelector("#TABLE_ID_YO");
-		z.className = "dib link f6 lh-title bg-mid-primary br1 br--top text bt b--dark-secondary bw1";
-		z.firstChild.className = "pv2 ph3 br bl b--primary";
+		z.className = "dib link f6 lh-title bg-gray-850 br1 br--top text bt b-red-600 theme-b-red-500 bw1";
+		z.firstChild.className = "pv2 ph3 br bl b-gray-800";
 		if(MassFriends.length > 0){
 			document.getElementById("MassFriendsNumber").innerHTML = MassFriends.length;
-			document.getElementById("MassFriendsNumber").className = "dib ph1 ml2 f7 fw4 silver br1 bg-mid-gray";
+			document.getElementById("MassFriendsNumber").className = "dib ph1 ml2 f7 fw4 br1 text bg-gray-500 theme-gray-950";
 		}else{
 			document.getElementById("MassFriendsNumber").innerHTML = "";
 			document.getElementById("MassFriendsNumber").removeAttribute("class");
@@ -383,50 +419,20 @@ function MassMessageFriends(boobs, SearchBreakUnfriendFix){
 	let tablelist = document.querySelector("[role='tablist']");
 	let table_link = document.createElement("a");
 	table_link.id = "TABLE_ID_YO";
-	table_link.className = "dib link f6 lh-title gray hover-silver";
-	table_link.innerHTML = "<div class='pv2 ph3 br bl b--transparent'><div class='pv1'>Mass Message<span id='MassFriendsNumber'></span></div></div>"
+	table_link.className = "dib link f6 lh-title gray hover-gray-300";
+	table_link.innerHTML = "<div class='pv2 ph3 br bl b-transparent'><div class='pv1'>Mass Message<span id='MassFriendsNumber'></span></div></div>"
 	if(!document.getElementById("TABLE_ID_YO") && location.href.match("/users/" + user_id + "/friends")){
 		tablelist.appendChild(table_link);
 	};
 	table_link.addEventListener("click", function(){
 		window.location.href = main_url + "/users/" + user_id + "/friends?MassMessageFriends";
 	});
-	if(location.href.match(/(\d+)\/friends/i)){
-		let unfriend = document.getElementsByTagName("a");
-		let card = document.getElementsByClassName("w-50-ns w-100 ph1");
-		for(let aa of card){
-			let click_event = aa.firstChild.getAttribute("onclick");
-			aa.querySelector("div.f6.lh-copy.fw4.silver.nowrap.truncate").setAttribute("onclick", click_event);
-			aa.firstChild.removeAttribute("onclick");
-			if(SearchBreakUnfriendFix) aa.innerHTML = aa.innerHTML;
-		};
-		for(let a of unfriend){
-			if(a.innerHTML === "unfriend" && !a.parentNode.querySelector("a[name='MassMessageLink']")){
-				let a_new = document.createElement("a");
-				a_new.name = "MassMessageLink";
-				a_new.setAttribute("mass-message", "false");
-				a_new.setAttribute("mass-message-user", a.parentNode.parentNode.querySelector("a.link.f5.fw7.secondary").innerHTML);
-				a_new.className = "mid-gray hover-silver link underline";
-				a_new.style.float = "right";
-				a_new.innerHTML = "add to mass message";
-				a.after(a_new);
-				//a.parentNode.innerHTML += "<a name='MassMessageLink' mass-message='false' mass-message-user='" + a.parentNode.parentNode.getElementsByClassName("link span f5 fw7 secondary")[0].innerHTML + "' href='javascript:void(0);' class='mid-gray hover-silver link underline' style='float: right;'>add to mass message</a>";
-				if(SearchBreakUnfriendFix === true){
-					a.href = "javascript:void(0);";
-					a.addEventListener("click", function(){
-						let Username = this.parentNode.parentNode.getElementsByClassName("link span f5 fw7 secondary")[0];
-						document.querySelector("div[data-id='unfriend-" + Username.href.split("/users/")[1] + "']").className = "fixed top-0 right-0 bottom-0 left-0 z-9999 pa3 bg-black-80 tc overflow-auto fade-in";
-					});
-				};
-			};
-		};
-		for(let a of document.querySelectorAll("a[name='MassMessageLink']")){
-			a.addEventListener("click", MassMessageFriend_A);
-		};
-	};
+	document.addEventListener("scroll", PlaceMassMessageLink);
+
 	if(location.href.match("MassMessageFriends")){
 		StartMassMessageFriends(Format);
 	};
+	PlaceMassMessageLink();
 	LoadList();
 };
 
