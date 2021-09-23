@@ -1,4 +1,8 @@
 let Changes = new Array();
+Changes["2.4.7"] = [
+    "Fixed a bug with \"Mass Archive/Delete Messages\".  Checkboxes now show on unread messages.",
+    "Updated \"Add Format Buttons\"."
+];
 Changes["2.4.6"] = [
     "Fixed a bug with the \"FLE Settings\" link not showing up in the sidebar.",
     "Fixed a bug with \"Mass Message Events\" that caused it not to work.",

@@ -315,7 +315,7 @@ function RunFormatButtons(textarea, AddUserButton){
         div1.append(div2);
         let style = document.createElement("style");
         document.head.appendChild(style);
-        if(location.href.match("/conversations/(.*)|QuickReplySettings|/groups/")){
+        if(location.href.match("/conversations/(.*)|QuickReplySettings|/groups/|/pictures/(.*)")){
             style.sheet.insertRule(".FormatButtons > a { text-decoration: none !important; background-color: #333; color: #ddd; height: 30px; width: 30px; padding: 5px; }");
             style.sheet.insertRule(".TooltipText { cursor: default !important; text-align: initial !important; display: block; z-index: 9999; overflow: hidden; position: absolute; background-color: #3f3f3f; border: 1px solid #cccccc; border-radius: 15px; padding: 10px; margin: 10px; font-size: 12px; color: #aaa; width: 163px; }");    
         }else{
@@ -860,7 +860,7 @@ function QuickReply(pacifier, FormatButtons){
 
 function MassArchiveDeleteMessages(){
     function PlaceCheckbox(){
-        let AllMessages = document.getElementsByClassName("relative flex items-center w-100 pa3 hover-bg-gray-800 bg-animate pointer bb b-gray-800 hover-show bg-transparent")
+        let AllMessages = document.querySelectorAll("main > div > div.relative.flex.items-center.w-100.pa3.hover-bg-gray-800.bg-animate.pointer.bb.b-gray-800.hover-show");
         for(let a of AllMessages){
             if(!a.querySelector("input[name='CheckConvo']")){
                 let URL = a.querySelector("a[href*='/conversations']").href.split("#newest_message")[0];
