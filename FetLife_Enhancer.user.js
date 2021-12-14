@@ -6,12 +6,10 @@
 // @author PrincessBabyTay
 // @copyright PrincessBabyTay (https://openuserjs.org/users/PrincessBabyTay)
 // @match *://fetlife.com/*
-// @grant GM.info
 // @grant GM.setValue
 // @grant GM.getValue
 // @grant GM.deleteValue
 // @grant GM.listValues
-// @grant window
 // @updateURL https://openuserjs.org/meta/PrincessBabyTay/FetLife_Enhancer.meta.js
 // @downloadURL https://openuserjs.org/install/PrincessBabyTay/FetLife_Enhancer.user.js
 // @license GPL-3.0-or-later
@@ -348,9 +346,10 @@ function QEAboutMe(Format){
     if(document.querySelector("a[href='/settings/profile/about']")){
         let a = document.querySelector("a[href='/settings/profile/about']");
         let b = a.outerHTML;
-        let c = "<a href='javascript:void(0);' name='QuickEditABoutMe'>quick edit</a>";
-        let d = a.href;
-        a.parentNode.innerHTML = "(" + b + " / " + c + ")";
+        let c = a.href;
+        let d = a.className ? "class='" + a.className + "'" : "";
+        let e = "<a href='javascript:void(0);' name='QuickEditABoutMe' " + d + ">quick edit</a>";
+        a.parentNode.innerHTML = "(" + b + " / " + e + ")";
         document.querySelector("a[name='QuickEditABoutMe']").addEventListener("click",function(){
             let bio = this.parentElement.parentElement;
             if(!document.getElementById("QEAM")){
@@ -358,7 +357,7 @@ function QEAboutMe(Format){
                 QEAM.id = "QEAM";
                 QEAM.innerHTML = LoadingContainer();
                 bio.after(QEAM);
-                SetupAboutMe(d);
+                SetupAboutMe(c);
             };
         });
     };
@@ -1606,7 +1605,6 @@ function ExportToCSV(hiya){
 					let Username;
 					let UserLower;
 					let UserID;
-                    let UserAGR;
 					let Users;
 					for(let a of user){
 						if(NewMassMessage == true){
@@ -1614,7 +1612,7 @@ function ExportToCSV(hiya){
 							Username = Users.innerText;
 							UserLower = Username.toLowerCase();
 							UserID = Users.href.split("/users/")[1];
-							UserAGR = Users.parentNode.querySelector("span.f6.fw7.silver").innerText.replace(/\s+/g," ").trim();
+							UserAGR = Users.parentNode.querySelector("span.f6").innerText.replace(/\s+/g," ").trim();
 							AllUsers[AllUsers.length] = [Username, UserID, UserAGR];
 						}else if(NewMassMessage == false){
 							Username = a.innerHTML;
@@ -1639,7 +1637,6 @@ function ExportToCSV(hiya){
 				let Username;
 				let UserLower;
 				let UserID;
-                let UserAGR;
 				let Users;
 				for(let a of user){
 					if(NewMassMessage == true){
@@ -1647,7 +1644,7 @@ function ExportToCSV(hiya){
 						Username = Users.innerText;
 						UserLower = Username.toLowerCase();
 						UserID = Users.href.split("/users/")[1];
-						UserAGR = Users.parentNode.querySelector("span.f6.fw7.silver").innerText.replace(/\s+/g," ").trim();
+						UserAGR = Users.parentNode.querySelector("span.f6").innerText.replace(/\s+/g," ").trim();
 						AllUsers[AllUsers.length] = [Username, UserID, UserAGR];
 					}else if(NewMassMessage == false){
 						Username = a.innerHTML;
@@ -1689,10 +1686,10 @@ function ExportToCSV(hiya){
 		link.click();
 		document.body.removeChild(link);
 		document.getElementById("csvSetup").style.display = "block";
-		document.getElementById("csvLoading").style.display = "none";
+		document.getElementById("csvLoading").style.display = "none";		
 	};
 	let EventOwner;
-	let EventName = document.querySelector("header h1").innerHTML;
+	let EventName = document.querySelector("header h1").innerText;
 	let NewMassMessage;
 	if(document.getElementsByClassName("fl-nav__nickname")[0]){
 		EventOwner = document.getElementsByClassName("fl-nav__nickname")[0].innerHTML;
@@ -1735,7 +1732,7 @@ function ExportToCSV(hiya){
 				let new_div = document.createElement("div");
 				new_div.id = "csvTable";
 				new_div.style.display = "none";
-				let CSVTable = "<div id='csvSetup' style='margin-bottom: 20px;'>";
+				CSVTable = "<div id='csvSetup' style='margin-bottom: 20px;'>";
 				if(hiya.CSVFields){
 					for(let a of hiya.CSVFields){
 						// if(a[1].toLowerCase() === "agegenderrole"){
@@ -1757,7 +1754,7 @@ function ExportToCSV(hiya){
 				let new_div = document.createElement("div");
 				new_div.id = "csvTable";
 				new_div.style.display = "none";
-				let CSVTable = "<div id='csvSetup'>";
+				CSVTable = "<div id='csvSetup'>";
 				if(hiya.CSVFields){
 					for(let a of hiya.CSVFields){
 						CSVTable += "<div style='font-size: 1.2em;'><input style='width: 1.5em; height: 1.5em;' name='Show" + a[1].split(" ").join("") + "' type='checkbox' " + ((a[0] == true) ? "checked='true' " : "") + "/> Show " + a[1] + " Field?</div>";
@@ -1907,7 +1904,7 @@ function FLESettings(a){
 			var settings = document.createElement("div");
             settings.id = "FLE-Settings-fl-menu";
 			settings.className = "fl-menu__separator fl-menu__content-actions";
-			settings.innerHTML = "<div id='ExtraLinks' class='fl-menu__buttons-wrapper'><a id='AddOnSettings' class='fl-menu__button' style='display: block !important; float: relative; width: 100%' href='javascript:void(0);' title='Open FLE Settings'>" + SettingsIcon + "FLE Settings <span style='float: right;'>(v" + GM.info.script.version + ")</span></a></div>";
+			settings.innerHTML = "<div id='ExtraLinks' class='fl-menu__buttons-wrapper'><a id='AddOnSettings' class='fl-menu__button' style='display: block !important; float: relative; width: 100%' href='javascript:void(0);' title='Open FLE Settings'>" + SettingsIcon + "FLE Settings <!--<span style='float: right;'>[v]</span>--></a></div>";
             var settings_list = document.createElement("div");
             settings_list.id = "FLE-SettingsList";
             settings_list.className = "pa3 bb b--mid-primary";
@@ -2279,7 +2276,7 @@ const GetSync = new Promise(async function(resolve, reject){
 // Set an items value
 const SetSync = async function(item, value){
     if(isExtension){
-        chrome.storage.sync.set(item, value);
+        chrome.storage.sync.set({[item]: value});
     }else{
         await GM.setValue(item, JSON.stringify(value));
     };

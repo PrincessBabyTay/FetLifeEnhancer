@@ -427,9 +427,10 @@ function QEAboutMe(Format, Karen){
     if(document.querySelector("a[href='/settings/profile/about']")){
         let a = document.querySelector("a[href='/settings/profile/about']");
         let b = a.outerHTML;
-        let c = "<a href='javascript:void(0);' name='QuickEditABoutMe'>quick edit</a>";
-        let d = a.href;
-        a.parentNode.innerHTML = "(" + b + " / " + c + ")";
+        let c = a.href;
+        let d = a.className ? "class='" + a.className + "'" : "";
+        let e = "<a href='javascript:void(0);' name='QuickEditABoutMe' " + d + ">quick edit</a>";
+        a.parentNode.innerHTML = "(" + b + " / " + e + ")";
         document.querySelector("a[name='QuickEditABoutMe']").addEventListener("click",function(){
             let bio = this.parentElement.parentElement;
             if(!document.getElementById("QEAM")){
@@ -437,30 +438,32 @@ function QEAboutMe(Format, Karen){
                 QEAM.id = "QEAM";
                 QEAM.innerHTML = LoadingContainer();
                 bio.after(QEAM);
-                SetupAboutMe(d);
+                SetupAboutMe(c);
             };
         });
-        for(let a of Karen.Locations){
-            if(a[1] === "DEBUG.Mode = On" && (user_id === "3367935" || user_id === "9780960")){
-                let FLEDebug = document.createElement("a");
-                FLEDebug.className = "fl-badge FLE-Debug";
-                FLEDebug.href = "javascript:void(0);";
-                FLEDebug.innerHTML = "Turn Debug " + (Karen.DebugFLE == true ? "Off" : "On");
-                let badge_area = document.getElementById("maincontent").getElementsByClassName("span-4 last")[0];
-                badge_area.getElementsByTagName("div")[2] ? badge_area.getElementsByTagName("div")[2].after(FLEDebug) : badge_area.appendChild(FLEDebug);
-                document.querySelector(".FLE-Debug").addEventListener("click", function(){
-                    if(!Karen.DebugFLE){
-                        SetSync("DebugFLE", true);
-                        document.body.style.border = "3px solid red";
-                        this.innerHTML = "Turn Debug Off";
-                    }else{
-                        DeleteSync("DebugFLE");
-                        document.body.style.border = "";
-                        this.innerHTML = "Turn Debug On";
-                    };
-                });
-            };
-        };
+        // for(let a of Karen.CSVFields){
+        //     if(a[1] === Squishy && (user_id === "3367935" || user_id === "9780960")){
+        //         let badge_area = document.querySelector("aside > div > div > a[href*='/settings/profile']");
+        //         let FLEDebug = document.createElement("a");
+        //         FLEDebug.className = badge_area.className;
+        //         FLEDebug.classList += " FLE-Debug";
+        //         FLEDebug.style.marginTop = "1rem";
+        //         FLEDebug.href = "javascript:void(0);";
+        //         FLEDebug.innerHTML = "Turn Debug " + (Karen.DebugFLE == true ? "Off" : "On");
+        //         badge_area.after(FLEDebug);
+        //         document.querySelector(".FLE-Debug").addEventListener("click", function(){
+        //             if(!Karen.DebugFLE || Karen.DebugFLE == false){
+        //                 SetSync("DebugFLE", true);
+        //                 document.body.style.border = "3px solid red";
+        //                 this.innerHTML = "Turn Debug Off";
+        //             }else{
+        //                 SetSync("DebugFLE", false);
+        //                 document.body.style.border = "";
+        //                 this.innerHTML = "Turn Debug On";
+        //             };
+        //         });
+        //     };
+        // };
     };
 };
 

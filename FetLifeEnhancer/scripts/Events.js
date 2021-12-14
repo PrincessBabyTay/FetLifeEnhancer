@@ -311,7 +311,7 @@ function ExportToCSV(hiya){
 							Username = Users.innerText;
 							UserLower = Username.toLowerCase();
 							UserID = Users.href.split("/users/")[1];
-							UserAGR = Users.parentNode.querySelector("span.f6.fw7.silver").innerText.replace(/\s+/g," ").trim();
+							UserAGR = Users.parentNode.querySelector("span.f6").innerText.replace(/\s+/g," ").trim();
 							AllUsers[AllUsers.length] = [Username, UserID, UserAGR];
 						}else if(NewMassMessage == false){
 							Username = a.innerHTML;
@@ -343,7 +343,7 @@ function ExportToCSV(hiya){
 						Username = Users.innerText;
 						UserLower = Username.toLowerCase();
 						UserID = Users.href.split("/users/")[1];
-						UserAGR = Users.parentNode.querySelector("span.f6.fw7.silver").innerText.replace(/\s+/g," ").trim();
+						UserAGR = Users.parentNode.querySelector("span.f6").innerText.replace(/\s+/g," ").trim();
 						AllUsers[AllUsers.length] = [Username, UserID, UserAGR];
 					}else if(NewMassMessage == false){
 						Username = a.innerHTML;
@@ -388,7 +388,7 @@ function ExportToCSV(hiya){
 		document.getElementById("csvLoading").style.display = "none";		
 	};
 	let EventOwner;
-	let EventName = document.querySelector("header h1").innerHTML;
+	let EventName = document.querySelector("header h1").innerText;
 	let NewMassMessage;
 	if(document.getElementsByClassName("fl-nav__nickname")[0]){
 		EventOwner = document.getElementsByClassName("fl-nav__nickname")[0].innerHTML;

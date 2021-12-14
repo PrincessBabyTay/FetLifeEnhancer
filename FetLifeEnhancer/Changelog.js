@@ -1,6 +1,8 @@
 let Changes = new Array();
 Changes["2.4.7"] = [
     "Fixed a bug with \"Mass Archive/Delete Messages\".  Checkboxes now show on unread messages.",
+    "Fixed a bug with \"Quick Edit About Me\" that caused it not to work.",
+    "Fixed a bug with \"Create Guest List\" that caused it not to work.",
     "Updated \"Add Format Buttons\"."
 ];
 Changes["2.4.6"] = [

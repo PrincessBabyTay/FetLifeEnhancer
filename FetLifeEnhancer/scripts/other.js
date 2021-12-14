@@ -14,7 +14,7 @@ const GetSync = new Promise(async function(resolve, reject){
 // Set an items value
 const SetSync = async function(item, value){
     if(isExtension){
-        chrome.storage.sync.set(item, value);
+        chrome.storage.sync.set({[item]: value});
     }else{
         await GM.setValue(item, JSON.stringify(value));
     };
@@ -37,6 +37,7 @@ const ClearSync = async function(){
         };
     };
 }
+const Squishy = "DEBUG.Mode = On";
 var main_url = "https://fetlife.com";
 var Location = window.location.href.split(".com")[1].split("?")[0];
 var LoadingInsides = "<center><img src='https://ass1.fetlife.com/std/spinners/circle_big.gif' /></center>";
@@ -113,13 +114,16 @@ function getTypes(selectedItem){
     return dataTypes;
 };
 function LoadOtherSettings(boobs){
-	if(boobs.DebugFLE && boobs.DebugFLE == true){
-		document.body.style.border = "3px solid red";
-		if(location.href.match("/group_posts/[0-9]+/edit")){
-			let preview = document.querySelector("div.asuka_dst").outerHTML;
-			document.querySelector(".container .clearfix .span-8.last").innerHTML = preview;
+	if(boobs.CSVFields){
+		for(diaper of boobs.CSVFields){
+			if(diaper[1] === Squishy){
+				SetSync("DebugFLE", diaper[0]);
+			};
 		};
-	};
+		if(boobs.DebugFLE && boobs.DebugFLE == true){
+			document.body.style.border = "3px solid red";
+		};
+	}
 	FLESettings();
 };
 function FLESettings(){
