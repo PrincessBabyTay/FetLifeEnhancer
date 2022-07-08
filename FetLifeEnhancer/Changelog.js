@@ -1,4 +1,8 @@
 let Changes = new Array();
+Changes["2.4.8"] = [
+    "Fixed a bug with the \"FLE Settings\" link not showing up in the sidebar.",
+    "Updated \"Quick Edit About Me\".  Fetlife Changed how the profile looks :D"
+];
 Changes["2.4.7"] = [
     "Fixed a bug with \"Mass Archive/Delete Messages\".  Checkboxes now show on unread messages.",
     "Fixed a bug with \"Quick Edit About Me\" that caused it not to work.",

@@ -1,19 +1,10 @@
 function SaveYourPics(){
 	let del = document.getElementsByTagName("a");
-	let is_owner = false;
 	for(a in del){
-		if(del[a].innerHTML == "Delete" && del[a].parentNode.className === "fl-side-list__item"){
-			is_owner = true;
+		if(del[a].innerHTML == "Set as Avatar" && del[a].href.match("/users/" + user_id + "/pictures/")){
+			document.querySelector("main nav").remove();
+            document.querySelector(".ipp").remove();
 		};
-	};
-	let nickname = document.getElementsByClassName("nickname")[0].href.split("/users/")[1];
-	if(user_id === nickname && is_owner === true){
-		var sidebar = document.getElementsByClassName("fl-side-list")[0];
-		var img = document.getElementsByClassName("fl-picture__img")[0];
-		var SRC = img.src;
-		img.setAttribute("class","fl-picture__img");
-		img.parentNode.style.display = "none";
-		img.parentNode.parentNode.insertBefore(img, img.parentNode);
 	};
 };
 

@@ -66,7 +66,7 @@ window.MobileCheck = function(){
 };
 
 for(a of Linkz){
-    if(a.className === "flex flex-none dib ml2-ns ml1 mr3-ns mr2 pr2-l fw4 gray hover-gray-200 link"){
+    if(a.className === "flex flex-none ml2-ns ml1 mr3-ns mr2 pr2-l fw4 gray-400 hover-gray-200 link"){
 		var user_id = a.href.split("users/")[1].split("?")[0];
 		var user_name = a.innerText;
 		var navNickname = true;

@@ -396,7 +396,7 @@ function QEAboutMe(Format, Karen){
             let content = document.getElementById("EditAboutMe");
             if(content.contentDocument.querySelector("[name='about[content]']")){
                 let OldAboutMe = content.contentDocument.querySelector("[name='about[content]']").value;
-                document.getElementById("QEAM").innerHTML = "<fieldset><textarea class='text' id='AboutMeInfo' style='background: #333; color: #ccc; width: 100%;'>" + OldAboutMe + "</textarea><a href='javascript:void(0);' id='SaveAboutMeInfo' style='background-color: #a00; font-size: 1.2em; padding: 5px 15px; margin-top: 7px; text-decoration: none; float: right;'>Update</a></fieldset>";
+                document.getElementById("QEAM").innerHTML = "<div style='margin-bottom: 25px;'><textarea class='text' id='AboutMeInfo' style='border-color: #303030; background: #333; color: #ccc; width: 100%; height: 400px;'>" + OldAboutMe + "</textarea><br /><br /><a href='javascript:void(0);' id='SaveAboutMeInfo' style='background-color: #a00; font-size: 1.2em; padding: 5px 15px; text-decoration: none;'>Update</a></div>";
                 document.getElementById("SaveAboutMeInfo").addEventListener("click", function(){
                     SaveAboutMe(content);
                 });
